@@ -1,6 +1,6 @@
 ---
 title: Token 与鉴权体系
-description: 理解 Remember Token、Manage Token、Yggdrasil Token、验证码与 TOTP 的关系与边界。
+description: 理解站内 OAuth2、Yggdrasil Token、验证码与 TOTP 的关系与边界。
 order: 5
 tags:
   - token
@@ -17,8 +17,10 @@ HRPAuth 的复杂度主要来自“一个服务里有多套凭证系统”。如
 
 | 名称 | 主要字段 | 作用范围 | 存储位置 |
 | --- | --- | --- | --- |
-| Remember Token | `remember_token` / `remtoken` / `rt` | 站内业务接口 | `users.remember_token` |
-| Manage Token | `manage.token` | 运维管理路径 | `config.yaml` |
+| OAuth2 Access Token | `Authorization: Bearer <access_token>` | 站内业务接口 | `oauth2_access_tokens` |
+| OAuth2 Refresh Token | `refresh_token` | 站内业务续期 | `oauth2_refresh_tokens` |
+| OAuth2 Login Ticket | `login_ticket` | TOTP 二步登录中转 | Redis |
+| 内置超级客户端密钥 | `oauth2.super_client_secret` | 微服务间通信 | `config.yaml` |
 | Yggdrasil Access Token | `accessToken` | Yggdrasil 接口 | `tokens.access_token` |
 | Yggdrasil Client Token | `clientToken` | Yggdrasil 客户端标识 | `tokens.client_token` |
 | 邮箱验证码 | `code` | 邮箱验证 | Redis |
@@ -27,30 +29,39 @@ HRPAuth 的复杂度主要来自“一个服务里有多套凭证系统”。如
 
 ## 站内业务体系
 
-### Remember Token
+### OAuth2 Access Token
 
-普通用户登录成功后，服务会生成随机 Token 并写入 `users.remember_token`。
+站内业务接口现在统一改为 OAuth2 Bearer Token。
 
 它主要用于：
 
-- `/user`
 - `/logout`
+- `/user`
 - `/change-username`
 - `/change-profile-name`
 - `/totp/setup`
 - `/totp/hasbeenenabled`
 - `/texture/*`
+- `/user/declare-email`
+- 服务模式 `/register`
 
-### Manage Token
+### OAuth2 Login Ticket
 
-Manage Token 的定位是“超级 Remember Token”，但它不是用户会话。
+为了避免把 TOTP 退化成“邮箱 + 动态码就能登录”，第一方登录现在分两步：
 
-必须同时满足下面两个条件，才会走管理路径：
+1. `POST /oauth/login-ticket` 先做密码校验
+2. 若用户已开启 TOTP，则返回短期 `login_ticket`
+3. `POST /totp/verify` 再用 `login_ticket + passcode` 直接签发 OAuth2 token
 
-1. token 值等于 `config.manage.token`
-2. 请求显式声明 `auth_type: "manage"`
+### Legacy Manage Token
 
-如果只传了 Manage Token 但没有声明 `auth_type: "manage"`，当前实现不会自动升级为运维模式。
+`manage.token` 现在只保留为兼容迁移用的旧配置。
+
+新的微服务通信应该使用：
+
+- `oauth2.super_client_id`
+- `oauth2.super_client_secret`
+- `client_credentials`
 
 ## Yggdrasil 体系
 
@@ -96,22 +107,13 @@ Client Token 用来标识客户端实例。HRPAuth 使用它实现：
 - 其他客户端的有效 token 变为 `temporarily_invalid`
 - 当前客户端拿到新 `accessToken`
 
-## 为什么很多接口都有 `auth_type`
+## 为什么现在统一走 Bearer Token
 
-因为 HRPAuth 需要兼容“普通用户调用”和“运维代操作”两种模式。
+因为站内业务体系已经切到 OAuth2：
 
-### 默认行为
-
-未声明 `auth_type` 时，默认按普通 Remember Token 处理。
-
-### 管理行为
-
-声明 `auth_type: "manage"` 后：
-
-- token 必须匹配配置中的 Manage Token
-- 很多接口还必须额外提供 `uid` 或 `email`
-
-否则服务端无法知道你想替哪个用户执行操作。
+- 普通用户：走 `authorization_code + PKCE` 或第一方 `login_ticket` 快捷链路
+- 微服务：走 `client_credentials`
+- 代用户操作：用服务 token + 显式目标参数 + endpoint-level scope
 
 ## 验证码与 TOTP
 
@@ -135,22 +137,22 @@ TOTP 的基本流程是：
 
 1. `POST /totp/setup` 生成 `totpkey`
 2. 用户把密钥导入验证器应用
-3. `POST /totp/verify` 提交 6 位动态码
-4. 成功后返回 `rt`
+3. `POST /totp/verify` 提交 `login_ticket + 6 位动态码`
+4. 成功后返回 `access_token + refresh_token`
 
 ## 最容易踩的边界
 
-### `remember_token` 不能调 Yggdrasil 接口
+### 站内 OAuth2 access token 不能调 Yggdrasil 接口
 
 它只属于站内业务链路。
 
-### `accessToken` 不能调 `/user`、`/texture/*` 这类站内接口
+### Yggdrasil `accessToken` 不能调 `/user`、`/texture/*` 这类站内接口
 
 它只属于 Yggdrasil 链路。
 
-### Manage Token 不是万能自动通行证
+### 服务 token 不是万能自动通行证
 
-很多接口即使识别了 Manage Token，也仍然需要你明确指定目标用户。
+即使是内置超级客户端签出来的服务 token，也仍然要受 scope 和目标用户参数约束。
 
 ### `temporarily_invalid` 不是“彻底失效”
 

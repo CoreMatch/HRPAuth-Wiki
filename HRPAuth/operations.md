@@ -43,7 +43,7 @@ updatedAt: 2026-08-15
 
 - 启动时执行一次
 - 之后每 24 小时执行一次
-- 每次 Manage Token 注册成功后还会异步触发一次
+- 每次服务 token 代注册成功后还会异步触发一次
 
 清理对象是长期不活跃的 `cbh = false` 用户。
 
@@ -124,7 +124,7 @@ Redis 不是可有可无的附属件，它承载了多项短生命周期数据�
 - `security.enable_captcha`
 - Redis
 - 邮箱格式和唯一性
-- Manage Token 路径下是否显式声明了 `auth_type: "manage"`
+- 若是服务代注册，Bearer token 是否具备 `register.manage`
 
 ### 纹理相关异常
 

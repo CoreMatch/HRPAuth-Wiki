@@ -1,3 +1,10 @@
+---
+title: WinnerProxy API 参考
+description: WinnerProxy 暴露的 HTTP 端点及 Yggdrasil 标准实现说明
+order: 7
+updatedAt: 2026-08-15
+---
+
 # API Reference / API 参考
 
 > 中英双语。中文在前，英文在后。  

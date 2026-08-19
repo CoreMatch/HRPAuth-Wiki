@@ -1,3 +1,10 @@
+---
+title: WinnerProxy 数据流转
+description: WinnerProxy 处理 hasJoined 请求的三阶段详细逻辑
+order: 3
+updatedAt: 2026-08-15
+---
+
 # Data Flow
 
 This page details exactly what happens when a Minecraft server calls WinnerProxy's `hasJoined` endpoint, including every branch and edge case.
@@ -25,10 +32,11 @@ WinnerProxy
   │
   └─► Stage 3: Proxy registration
         POST {hrpauth.url}/register
+        Header: Authorization: Bearer <service access token>
         Body: { username, password (random 16 chars), email (auto placeholder),
-                mojang_uuid, remember_token: <M.T.> }
+                mojang_uuid }
         │
-        ├─ 200 + {profile_id, uid, cbh: 0} →     // cbh 字段**仅**在 M.T. 路径新建代注册 (cbh=0) 时返回；cbh=1 / 幂等 / bind 路径均不返回该字段
+        ├─ 200 + {profile_id, uid, cbh: 0} →     // cbh 字段**仅**在服务代理新建代注册 (cbh=0) 时返回；cbh=1 / 幂等 / bind 路径均不返回该字段
         │     Return to Minecraft:
         │       id: profile_id
         │       name: <POST /register 请求体中的 username, 即 mojangProfile.name>     // HA 响应不带 username 字段, WinnerProxy 用请求时已知的名字
@@ -81,12 +89,12 @@ We call HRPAuth's `POST /register` with:
   "username": "Alice",
   "password": "<random 16-char string>",
   "email": "alice@mojang-imported.invalid",
-  "mojang_uuid": "f7c77d999f154a66a87dc4a51ef30d19",
-  "remember_token": "<M.T.>"
+  "mojang_uuid": "f7c77d999f154a66a87dc4a51ef30d19"
 }
 ```
 
-`username` is the Minecraft name from `mojangProfile.name`. `mojang_uuid` is the UUID with hyphens stripped (HRPAuth stores 32-char hex without hyphens).
+`username` is the Minecraft name from `mojangProfile.name`. `mojang_uuid` is the UUID with hyphens stripped (HRPAuth stores 32-char hex without hyphens).  
+The service credential is now carried by OAuth2 Bearer token rather than historical M.T.
 
 ### What HRPAuth does internally
 

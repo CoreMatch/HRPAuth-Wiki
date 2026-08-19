@@ -1,3 +1,10 @@
+---
+title: WinnerProxy 配置说明
+description: WinnerProxy config.yml 详细字段说明与部署建议
+order: 4
+updatedAt: 2026-08-15
+---
+
 # Configuration / 配置
 
 > 中英双语。中文在前，英文在后。  
@@ -39,7 +46,8 @@ upstreams:
   # HRPAuth（Yggdrasil 公开端点 + /register 代注册）
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "<复制自 HRPAuth config.yaml > manage.token>"
+    client_id: "hrpauth-internal-super"
+    client_secret: "<复制自 HRPAuth config.yaml > oauth2.super_client_secret>"
     timeout_sec: 10
     enabled: true
 
@@ -90,11 +98,12 @@ Mojang base URL 是硬编码的，只可调超时。
 | 字段 | 类型 | 默认 | 说明 |
 |---|---|---|---|
 | `url` | string | `""` | HRPAuth base URL，如 `http://127.0.0.1:2880`。`enabled: true` 时 **必填**。 |
-| `manage_token` | string | `""` | HRPAuth M.T.。`enabled: true` 时 **必填**。复制自 HRPAuth `config.yaml > manage.token`。 |
+| `client_id` | string | `hrpauth-internal-super` | HRPAuth OAuth2 服务客户端 ID。默认使用内置超级客户端。 |
+| `client_secret` | string | `""` | HRPAuth OAuth2 服务客户端密钥。`enabled: true` 时 **必填**。复制自 HRPAuth `config.yaml > oauth2.super_client_secret`。 |
 | `timeout_sec` | int | 10 | HRPAuth HTTP 调用超时。 |
 | `enabled` | bool | `true` | 设为 `false` 后 WinnerProxy 无法做协议翻译，**几乎等于失效**。 |
 
-> **安全提示**：`manage_token` 是 super-admin token，等同数据库 root 密码。`chmod 600 config.yml`，**永远不要提交到 git**。
+> **安全提示**：`client_secret` 是高权限服务凭据，等同旧时代的 super-admin token。`chmod 600 config.yml`，**永远不要提交到 git**。
 
 #### `site`
 
@@ -113,10 +122,10 @@ Mojang base URL 是硬编码的，只可调超时。
 
 - **首次启动**（`config.yml` 不存在）：
   1. 写入默认 `config.yml` 到可执行文件同目录
-  2. 如果 stdin 是 TTY 且未传 `--no-stdin` → 提示输入 M.T.，写入文件
+  2. 如果 stdin 是 TTY 且未传 `--no-stdin` → 提示输入 HRPAuth OAuth2 `client_secret`，写入文件
   3. 启动服务
 - **非首次启动** → 直接读 `config.yml` 启动
-- **M.T. 仍为空** → 启动时打 WARN（不会 fatal），但所有 `/register` 调用都会失败
+- **client_secret 仍为空** → 启动时打 WARN（不会 fatal），但所有 `/register` 调用都会失败
 
 ### 配置示例：最小本地
 
@@ -129,7 +138,7 @@ upstreams:
     enabled: true
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "abcdef0123456789..."
+    client_secret: "abcdef0123456789..."
     enabled: true
 ```
 
@@ -145,7 +154,7 @@ upstreams:
     timeout_sec: 15
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "<M.T.>"
+    client_secret: "<oauth2.super_client_secret>"
     timeout_sec: 15
     enabled: true
 ```
@@ -196,7 +205,7 @@ upstreams:
   # HRPAuth (Yggdrasil public endpoints + /register proxy registration)
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "<copy from HRPAuth config.yaml > manage.token>"
+    client_secret: "<copy from HRPAuth config.yaml > oauth2.super_client_secret>"
     timeout_sec: 10
     enabled: true
 
@@ -247,11 +256,11 @@ Mojang's base URL is hardcoded; only the timeout is configurable.
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `url` | string | `""` | HRPAuth base URL, e.g. `http://127.0.0.1:2880`. **Required** when `enabled: true`. |
-| `manage_token` | string | `""` | HRPAuth M.T. **Required** when `enabled: true`. Copy from HRPAuth `config.yaml > manage.token`. |
+| `client_secret` | string | `""` | HRPAuth OAuth2 service client secret. **Required** when `enabled: true`. Copy from HRPAuth `config.yaml > oauth2.super_client_secret`. |
 | `timeout_sec` | int | 10 | HTTP timeout for HRPAuth calls. |
 | `enabled` | bool | `true` | Setting to `false` makes WinnerProxy unable to translate sessions — effectively dead. |
 
-> **Security note**: `manage_token` is a super-admin token; treat it like a database root password. `chmod 600 config.yml`, **never commit it to git**.
+> **Security note**: `client_secret` is a high-privilege service credential; treat it like a database root password. `chmod 600 config.yml`, **never commit it to git**.
 
 #### `site`
 
@@ -270,10 +279,10 @@ Schema version of this config file. **Do not edit manually**; reserved for futur
 
 - **First launch** (`config.yml` does not exist):
   1. A default `config.yml` is written next to the executable
-  2. If stdin is a TTY and `--no-stdin` is not set → the user is prompted for the M.T. (which is patched into the file)
+  2. If stdin is a TTY and `--no-stdin` is not set → the user is prompted for the HRPAuth OAuth2 `client_secret` (which is patched into the file)
   3. The service starts
 - **Subsequent launches** → read `config.yml` and start
-- **M.T. still empty** → a WARN is logged at startup (not fatal), but every `/register` call will fail
+- **client_secret still empty** → a WARN is logged at startup (not fatal), but every `/register` call will fail
 
 ### Minimal local example
 
@@ -286,7 +295,7 @@ upstreams:
     enabled: true
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "abcdef0123456789..."
+    client_secret: "abcdef0123456789..."
     enabled: true
 ```
 
@@ -302,7 +311,7 @@ upstreams:
     timeout_sec: 15
   hrpauth:
     url: "http://127.0.0.1:2880"
-    manage_token: "<M.T.>"
+    client_secret: "<oauth2.super_client_secret>"
     timeout_sec: 15
     enabled: true
 ```

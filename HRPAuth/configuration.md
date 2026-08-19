@@ -85,13 +85,16 @@ Redis 主要用于：
 
 ### `manage`
 
-`manage.token` 是运维级别的超级凭证。
+`oauth2` 是站内业务鉴权的新主入口。
 
-它的特点是：
+其中最关键的是：
 
-- 首次生成配置时会自动写入
-- 不属于任何用户
-- 只能在请求中显式声明 `auth_type: "manage"` 时进入管理路径
+- `oauth2.super_client_id`
+- `oauth2.super_client_secret`
+- `oauth2.public_client_id`
+- `oauth2.public_redirect_uris`
+
+`manage.token` 仍会保留在配置里，但已经属于**兼容迁移字段**，不再是新接口的主鉴权方式。
 
 ### `security`
 
@@ -139,6 +142,7 @@ Redis 主要用于：
 按当前实现，默认配置里会：
 
 - 生成 Manage Token
+- 生成 OAuth2 内置超级客户端密钥
 - 为 Yggdrasil 签名准备公私钥路径
 - 默认开启图形验证码
 - 默认开启 `non_email_login`

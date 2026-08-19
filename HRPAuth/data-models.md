@@ -11,7 +11,7 @@ updatedAt: 2026-08-15
 
 # 数据模型
 
-HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_properties`、`tokens`、`sessions`。
+HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 Yggdrasil 相关表。
 
 ## 总览
 
@@ -20,6 +20,10 @@ HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_p
 | User | `users` | 用户账号、站内认证、TOTP、绑定状态 |
 | Profile | `profiles` | Minecraft 角色 |
 | ProfileProperty | `profile_properties` | 角色属性，尤其是纹理 |
+| OAuth2Client | `oauth2_clients` | 站内 OAuth2 客户端 |
+| OAuth2AccessToken | `oauth2_access_tokens` | 站内 Bearer token |
+| OAuth2RefreshToken | `oauth2_refresh_tokens` | 站内刷新 token |
+| OAuth2AuthorizationCode | `oauth2_authorization_codes` | 站内授权码 |
 | Token | `tokens` | Yggdrasil Access Token 状态 |
 | Session | `sessions` | Minecraft 加服会话 |
 
@@ -34,7 +38,7 @@ HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_p
 - `email`
 - `username`
 - `password`
-- `remember_token`
+- `remember_token`（遗留字段）
 - `verified`
 - `totp`
 - `cbh`
@@ -48,7 +52,7 @@ HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_p
 `cbh` 表示账号是否“由人类创建”：
 
 - `true`：普通注册或已视为人工账号
-- `false`：由 Manage Token 路径代注册出来的机器人账号
+- `false`：由服务 token 代注册出来的机器人账号
 
 这个字段直接影响代注册用户清理任务。
 
@@ -57,7 +61,7 @@ HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_p
 `mbe` 表示是否允许 Mojang 撞名绑定。
 
 - 关闭时，撞名 Mojang 用户会被拒绝
-- 开启后，Manage Token 注册路径可以把 `mojang_uuid` 绑定到该用户
+- 开启后，服务代注册路径可以把 `mojang_uuid` 绑定到该用户
 
 #### `mojang_uuid`
 
@@ -86,6 +90,15 @@ HRPAuth 当前围绕 5 个核心模型工作：`users`、`profiles`、`profile_p
 - `signature`
 
 当皮肤或披风发生变化时，实际会更新这一层以及对应的文件存储。
+
+## OAuth2 相关表
+
+站内业务接口现在主要使用：
+
+- `oauth2_clients`
+- `oauth2_access_tokens`
+- `oauth2_refresh_tokens`
+- `oauth2_authorization_codes`
 
 ## Token
 
@@ -138,9 +151,9 @@ User
 ## 和业务逻辑的对应关系
 
 - 注册：写 `users`，并创建默认 `profiles`
-- 登录：更新 `users.remember_token`
+- OAuth2 登录：写 `oauth2_*`
 - TOTP：写 `users.totp`
-- Manage 绑定：写 `users.mbe` 或 `users.mojang_uuid`
+- 服务代绑定：写 `users.mbe` 或 `users.mojang_uuid`
 - Yggdrasil 登录：写 `tokens`
 - 加服：写 `sessions`
 - 纹理上传：写文件并更新 `profile_properties`

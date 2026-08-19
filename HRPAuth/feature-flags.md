@@ -34,7 +34,7 @@ HRPAuth 的功能开关主要位于 `yggdrasil.feature_flags` 下，影响的是
 - `POST /authserver/authenticate` 的入参语义变宽
 - 通过角色名登录时，系统会尝试把请求映射回对应用户
 
-它不影响普通站内 `POST /login`。
+它不影响站内业务流程。
 
 ### `legacy_skin_api`
 

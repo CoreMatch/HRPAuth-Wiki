@@ -19,7 +19,7 @@ HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互
 ## 这套 Wiki 适合谁
 
 - 需要在本地启动和调试 HRPAuth 的开发者
-- 需要理解双 Token 体系和 Manage Token 行为的后端开发者
+- 需要理解站内 OAuth2 与 Yggdrasil 双体系边界的后端开发者
 - 需要对接 Yggdrasil 或站内业务接口的客户端开发者
 - 需要排查配置、Redis、MySQL、纹理或密钥问题的运维同学
 
@@ -40,7 +40,7 @@ HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互
 
 HRPAuth 同时维护两套彼此独立的鉴权体系：
 
-- 站内业务体系：以 `remember_token` 为核心，服务于 WebUI 和后台管理接口。
+- 站内业务体系：以 OAuth2 Bearer token 为核心，服务于 WebUI 和后台管理接口。
 - Yggdrasil 体系：以 `accessToken + clientToken` 为核心，服务于 Minecraft 客户端和 Authlib-Injector。
 
 这两套 Token 不能混用。开发联调时，先分清当前调用的是哪一条链路，通常能省掉一半的排查时间。

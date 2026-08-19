@@ -89,8 +89,8 @@ go run .
 1. `GET /captcha/enabled`
 2. `POST /captcha`
 3. `POST /register`
-4. `POST /login`
-5. `POST /user`
+4. `/oauth/authorize` + `/oauth/token` (OAuth2 登录)
+5. `POST /user` (Bearer 鉴权)
 6. `POST /email-verification`
 7. `POST /totp/setup`
 8. `POST /totp/verify`
@@ -112,27 +112,28 @@ go run .
 
 默认配置只是为了让结构完整，不代表可以直接上线。尤其是数据库、Redis、SMTP、前后端 URL 都需要按环境修改。
 
-### `remember_token` 和 `accessToken` 完全不是一回事
+### 站内 OAuth2 access token 和 Yggdrasil `accessToken` 完全不是一回事
 
 前者服务于站内业务接口，后者服务于 Yggdrasil 接口。把它们混用会得到一堆看似合理、实际毫无帮助的报错。
 
-### Manage Token 必须显式声明 `auth_type: "manage"`
+### Manage Token 已进入弃用态
 
-当前实现不会因为你传入的 token 恰好等于 Manage Token 就自动切换到运维模式。要走管理路径，必须同时满足：
+新的站内业务链路已经切到 OAuth2：
 
-- token 等于配置中的 `manage.token`
-- 请求体或参数显式声明 `auth_type: "manage"`
+- 第一方登录：`/oauth/login-ticket` 或 `authorization_code + PKCE`
+- 微服务通信：`client_credentials`
+- 运维/代操作：Bearer 服务 token + scope + 目标参数
 
 ### 图形验证码只在普通注册路径生效
 
-普通 WebUI 注册会受 `security.enable_captcha` 约束；Manage Token 注册路径不会走验证码校验。
+普通 WebUI 注册会受 `security.enable_captcha` 约束；服务 token 代注册路径不会走验证码校验。
 
 ## 最小验收清单
 
 - `GET /status` 返回在线状态
 - `GET /` 返回 Yggdrasil 元信息和公钥
-- 普通用户可以完成注册和登录
-- `POST /user` 能用 `remember_token` 读到当前用户
+- 普通用户可以完成注册和 OAuth2 登录
+- `POST /user` 能用 Bearer token 读到当前用户
 - Yggdrasil 登录能拿到 `accessToken`、`clientToken` 和角色资料
 - Redis 中能看到验证码或限流相关 key
-- MySQL 中能看到 `users`、`profiles`、`tokens`、`sessions` 等表
+- MySQL 中能看到 `users`、`profiles`、`tokens`、`sessions`、`oauth2_*` 等表

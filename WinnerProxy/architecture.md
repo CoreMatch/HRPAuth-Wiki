@@ -1,3 +1,10 @@
+---
+title: WinnerProxy 架构设计
+description: WinnerProxy 的核心架构、职责划分与身份模型
+order: 2
+updatedAt: 2026-08-15
+---
+
 # Architecture / 架构
 
 > 中英双语。中文在前，英文在后。  
@@ -30,14 +37,14 @@
 │  ┌────────────────────────┐  ┌─────────────▼─────────────┐                │
 │  │ MojangService          │  │ HRPAuth Client            │                │
 │  │ (sessionserver +       │  │ (Yggdrasil 公开 +         │                │
-│  │  api.minecraftservices)│  │  /register w/ M.T.)       │                │
+│  │  api.minecraftservices)│  │  /register 服务模式)      │                │
 │  └────────────┬───────────┘  └─────────────┬─────────────┘                │
 └───────────────┼──────────────────────────────┼──────────────────────────────┘
                 │                              │
                 ▼                              ▼
    ┌────────────────────────┐    ┌────────────────────────────┐
    │ Mojang sessionserver   │    │ HRPAuth                    │
-   │ api.minecraftservices  │    │ (Yggdrasil + 代注册 M.T.)  │
+   │ api.minecraftservices  │    │(Yggdrasil + 服务模式代注册)│
    └────────────────────────┘    └────────────────────────────┘
 ```
 
@@ -46,7 +53,7 @@
 **WinnerProxy 持有**：
 - 一个 freecache 进程内缓存（5 分钟 TTL，挡重复请求）
 - HTTP 监听（`server.addr`）
-- 三个小客户端：`MojangService`、`HRPAuth` 客户端（Yggdrasil 公开 + `/register` M.T. 路径）
+- 三个小客户端：`MojangService`、`HRPAuth` 客户端（Yggdrasil 公开 + `/register` 服务模式路径）
 
 **WinnerProxy 不持有**（全部归 HRPAuth 内部）：
 - 玩家身份数据库（`users` 表是 HRPAuth 的数据源）
@@ -155,14 +162,14 @@ Minecraft 服务端**永远看到的是 HRPAuth `profiles.id`**（一个 UUID）
 │  ┌────────────────────────┐  ┌─────────────▼─────────────┐                │
 │  │ MojangService          │  │ HRPAuth Client            │                │
 │  │ (sessionserver +       │  │ (Yggdrasil public +       │                │
-│  │  api.minecraftservices)│  │  /register w/ M.T.)       │                │
+│  │  api.minecraftservices)│  │  /register service mode)  │                │
 │  └────────────┬───────────┘  └─────────────┬─────────────┘                │
 └───────────────┼──────────────────────────────┼──────────────────────────────┘
                 │                              │
                 ▼                              ▼
    ┌────────────────────────┐    ┌────────────────────────────┐
    │ Mojang sessionserver   │    │ HRPAuth                    │
-   │ api.minecraftservices  │    │ (Yggdrasil + M.T. reg.)    │
+   │ api.minecraftservices  │    │ (Yggdrasil + Service reg.) │
    └────────────────────────┘    └────────────────────────────┘
 ```
 
@@ -170,7 +177,7 @@ Minecraft 服务端**永远看到的是 HRPAuth `profiles.id`**（一个 UUID）
 
 - An in-process freecache (5 min TTL, shields repeated lookups)
 - The HTTP listener on `server.addr`
-- Three small clients: `MojangService`, the `HRPAuth` client (Yggdrasil public + `/register` M.T. path)
+- Three small clients: `MojangService`, the `HRPAuth` client (Yggdrasil public + `/register` service-mode path)
 
 ### What WinnerProxy does NOT own (HRPAuth's internal concerns)
 

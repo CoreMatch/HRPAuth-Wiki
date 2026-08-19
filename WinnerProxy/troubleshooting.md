@@ -1,3 +1,10 @@
+---
+title: WinnerProxy 故障排查
+description: WinnerProxy 常见问题、日志说明与解决方案
+order: 6
+updatedAt: 2026-08-15
+---
+
 # Troubleshooting / 故障排查
 
 > 中英双语。中文在前，英文在后。  
@@ -180,34 +187,34 @@ username_already_bound, rejecting mojang player: name=Alice uuid=f7c77d99...
 
 HRPAuth v0.2 引入 `mbe`（Mojang Bind Enabled）字段控制同名 Mojang 玩家撞名 bind 的策略：
 
-- `mbe = 0`（默认）：HRPAuth 优先。未绑 Mojang 的 HRPAuth 用户，遇到同名 Mojang 玩家进服，HA `/register`（M.T. 路径）返 409 `username_already_bound`，Mojang 玩家被踢。
+- `mbe = 0`（默认）：HRPAuth 优先。未绑 Mojang 的 HRPAuth 用户，遇到同名 Mojang 玩家进服，HA `/register`（服务模式路径）返 409 `username_already_bound`，Mojang 玩家被踢。
 - `mbe = 1`（玩家主动开启）：允许同名 Mojang 玩家 bind 到本 HRPAuth 用户；bind 时**仅写 `mojang_uuid` + `last_sign_at`**，**保留 `password` / `email` / `cbh` 不变**。
 
 #### 玩家自助开（推荐）
 
-登录 HRPAuth WebUI，调：
+登录 HRPAuth WebUI 授权后，使用 Bearer Token 调：
 ```http
 POST /user/mojang-bind-enable
+Authorization: Bearer <Access Token>
 Content-Type: application/json
-
-{ "remember_token": "<你的 Remember Token>" }
 ```
 
 成功后该用户的 `mbe` 置 1。**幂等**。
 
 #### 运维代开
 
-玩家没 Remember Token / 无法自助时，运维用 M.T. 代开：
+玩家无法自助时，运维使用具备 `admin:user.write` 权限的 **Service Token** 代开：
 ```http
 POST /user/mojang-bind-enable
+Authorization: Bearer <Service Token>
 Content-Type: application/json
 
-{ "remember_token": "<M.T.>", "uid": "42" }
+{ "uid": "42" }
 ```
 
 或：
 ```http
-{ "remember_token": "<M.T.>", "email": "alice@example.com" }
+{ "email": "alice@example.com" }
 ```
 
 > `uid` 与 `email` 二选一；都缺则 HA 返 400。
@@ -231,15 +238,15 @@ upstreams:
 
 可以，但有代价：
 - `cache` 是 per-instance，缓存命中率下降
-- HRPAuth M.T. 共用，所有实例用同一个 `manage_token`
+- HRPAuth Service Token 共用，所有实例用同一个 `client_secret`
 - 不需要状态同步，多个实例对 HRPAuth 的最终状态一致
 
 单实例一般够用。
 
-#### 怎么轮换 M.T.？
+#### 怎么轮换 Service Token？
 
-1. 在 HRPAuth `config.yaml` 生成新值
-2. 改 WinnerProxy `config.yml`
+1. 在 HRPAuth `config.yaml` 生成新的 `oauth2.super_client_secret`
+2. 改 WinnerProxy `config.yml` 中的 `upstreams.hrpauth.client_secret`
 3. `systemctl restart winnerproxy`
 4. 重启期间老实例 auth 失败、新实例用新 token——约 5–10 秒不可用
 
@@ -420,34 +427,34 @@ username_already_bound, rejecting mojang player: name=Alice uuid=f7c77d99...
 
 Since HRPAuth v0.2, the `mbe` (Mojang Bind Enabled) field controls the "collision bind" policy:
 
-- `mbe = 0` (default, HA wins): an HRPAuth user without a bound Mojang UUID who is hit by a same-name Mojang player → HA `/register` (M.T. path) returns 409 `username_already_bound`; the Mojang player is kicked.
+- `mbe = 0` (default, HA wins): an HRPAuth user without a bound Mojang UUID who is hit by a same-name Mojang player → HA `/register` (service-mode path) returns 409 `username_already_bound`; the Mojang player is kicked.
 - `mbe = 1` (player opted in): same-name Mojang players are allowed to bind to that HRPAuth user; **only `mojang_uuid` + `last_sign_at` are written**. `password` / `email` / `cbh` are **preserved**.
 
 #### Self-service (recommended)
 
-From HRPAuth WebUI:
+After authorizing in HRPAuth WebUI, use a Bearer Token to call:
 ```http
 POST /user/mojang-bind-enable
+Authorization: Bearer <Access Token>
 Content-Type: application/json
-
-{ "remember_token": "<your Remember Token>" }
 ```
 
 After success, the user's `mbe` is set to 1. **Idempotent**.
 
 #### Operator-assisted
 
-When the player has no Remember Token, an operator can do it with the M.T.:
+When the player cannot self-service, an operator uses a **Service Token** with `admin:user.write` scope:
 ```http
 POST /user/mojang-bind-enable
+Authorization: Bearer <Service Token>
 Content-Type: application/json
 
-{ "remember_token": "<M.T.>", "uid": "42" }
+{ "uid": "42" }
 ```
 
 or:
 ```http
-{ "remember_token": "<M.T.>", "email": "alice@example.com" }
+{ "email": "alice@example.com" }
 ```
 
 > `uid` and `email` are mutually exclusive; missing both → HA returns 400.
@@ -471,14 +478,14 @@ Then run a local mock to simulate Mojang `hasJoined 200`.
 
 Yes, with caveats:
 - `cache` is per-instance → cache hit rate drops
-- HRPAuth M.T. is shared; all instances use the same `manage_token`
+- HRPAuth Service Token is shared; all instances use the same `client_secret`
 - No state synchronization needed; multiple instances converge on the same HRPAuth state
 
 A single instance is enough for most workloads.
 
-#### "How do I rotate the M.T.?"
+#### "How do I rotate the Service Token?"
 
-1. Generate a new value in HRPAuth's `config.yaml`.
-2. Update WinnerProxy's `config.yml`.
+1. Generate a new `oauth2.super_client_secret` in HRPAuth's `config.yaml`.
+2. Update WinnerProxy's `config.yml` `upstreams.hrpauth.client_secret`.
 3. `systemctl restart winnerproxy`.
 4. During the restart, the old instance's auth fails and the new instance uses the new token. ~5–10s of unavailability is expected.

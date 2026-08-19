@@ -1,3 +1,10 @@
+---
+title: WinnerProxy 部署指南
+description: WinnerProxy 单实例部署、systemd 配置与联调验证
+order: 5
+updatedAt: 2026-08-15
+---
+
 # Deployment / 部署
 
 > 中英双语。中文在前，英文在后。  
@@ -26,9 +33,9 @@ WinnerProxy 是**单实例**设计：进程内 freecache、零共享状态、无
 1. 复制 `winnerproxy` 二进制到任意目录（部署者自选）。
 2. **首次启动**：进入该目录，运行 `./winnerproxy`：
    - 自动在**同目录**生成 `config.yml`（默认值，见 [Configuration](./configuration.md)）
-   - 若 stdin 是 TTY 且未传 `--no-stdin`：提示输入 HRPAuth M.T.，回车后写入 `config.yml`
-   - 若 stdin 非 TTY：跳过提示；需手动编辑 `config.yml` 填入 `upstreams.hrpauth.manage_token`
-3. 编辑 `config.yml` 调整 `server.addr` / `upstreams.hrpauth.url` / `upstreams.hrpauth.manage_token` 等。
+   - 若 stdin 是 TTY 且未传 `--no-stdin`：提示输入 HRPAuth OAuth2 `client_secret`，回车后写入 `config.yml`
+   - 若 stdin 非 TTY：跳过提示；需手动编辑 `config.yml` 填入 `upstreams.hrpauth.client_secret`
+3. 编辑 `config.yml` 调整 `server.addr` / `upstreams.hrpauth.url` / `upstreams.hrpauth.client_secret` 等。
 4. 把整个目录所有权交给服务用户，文件模式 `chmod 600 config.yml`。
 
 ### systemd unit（最小化、发行版无关）
@@ -89,14 +96,14 @@ curl -sI https://sessionserver.mojang.com/session/minecraft/hasJoined?username=N
 ### 验证清单
 
 - [ ] `config.yml` 是 `chmod 600`，属主为服务用户
-- [ ] `upstreams.hrpauth.manage_token` 与 HRPAuth `config.yaml > manage.token` **完全一致**
+- [ ] `upstreams.hrpauth.client_secret` 与 HRPAuth `config.yaml > oauth2.super_client_secret` **完全一致**
 - [ ] HRPAuth 可达（用上面第 2 条命令）
 - [ ] Mojang 出站可达（用上面第 3 条命令）
 - [ ] Minecraft 服务端 `server.properties`：
   - `online-mode=true`
   - `yggdrasil-api-url=http://winnerproxy:2779/yggdrasil`（**必须带 `/yggdrasil` 后缀**）
 - [ ] `/health` 从监控点能返 200
-- [ ] 启动日志没有 `WARN: hrpauth manage_token is empty`
+- [ ] 启动日志没有 `WARN: hrpauth client_secret is empty`
 - [ ] `config.yml` 已备份到密钥管理工具（**不提交到 git**）
 
 ### 资源占用
@@ -111,7 +118,7 @@ curl -sI https://sessionserver.mojang.com/session/minecraft/hasJoined?username=N
 ### 不要做的事
 
 - ❌ **不要配反代**（nginx / Caddy 之类）。Yggdrasil 协议无状态、不加密，必要时让 Minecraft 服务端直连 WinnerProxy 即可。
-- ❌ **不要把 `manage_token` 暴露到 Minecraft 服务端可达网络**。它等同数据库 root 密码。
+- ❌ **不要把 `client_secret` 暴露到 Minecraft 服务端可达网络**。它等同高权限服务凭据。
 - ❌ **不要让 WinnerProxy 直跑在公网**。Mojang 玩家会话劫持历史告诉我们：未鉴权暴露 = RCE 风险。WinnerProxy 应当只在 Minecraft 服务端与 HRPAuth 之间的内部网络可达。
 - ❌ **不要以 root 跑**。开 `User=winnerproxy` 即可。
 - ❌ **不要用 `yggdrasil-api-url=http://winnerproxy:2779/`**（漏 `/yggdrasil` 后缀会全部 404）。
@@ -140,9 +147,9 @@ verification is handled by HRPAuth; WinnerProxy instances do not need to coordin
 1. Copy the `winnerproxy` binary into any directory (operator's choice).
 2. **First launch** — `cd` into that directory and run `./winnerproxy`:
    - A `config.yml` is auto-generated in the **same directory** (defaults — see [Configuration](./configuration.md))
-   - If stdin is a TTY and `--no-stdin` is not set: a prompt asks for the HRPAuth M.T., writes it back to `config.yml`
-   - If stdin is not a TTY: the prompt is skipped; manually edit `config.yml` and fill in `upstreams.hrpauth.manage_token`
-3. Edit `config.yml` to adjust `server.addr` / `upstreams.hrpauth.url` / `upstreams.hrpauth.manage_token`.
+   - If stdin is a TTY and `--no-stdin` is not set: a prompt asks for the HRPAuth OAuth2 `client_secret`, writes it back to `config.yml`
+   - If stdin is not a TTY: the prompt is skipped; manually edit `config.yml` and fill in `upstreams.hrpauth.client_secret`
+3. Edit `config.yml` to adjust `server.addr` / `upstreams.hrpauth.url` / `upstreams.hrpauth.client_secret`.
 4. `chown` the directory to the service user, `chmod 600 config.yml`.
 
 ### systemd unit (minimal, distro-agnostic)
@@ -205,14 +212,14 @@ curl -sI https://sessionserver.mojang.com/session/minecraft/hasJoined?username=N
 ### Production checklist
 
 - [ ] `config.yml` is `chmod 600` and owned by the service user
-- [ ] `upstreams.hrpauth.manage_token` matches HRPAuth's `config.yaml > manage.token` **exactly**
+- [ ] `upstreams.hrpauth.client_secret` matches HRPAuth's `config.yaml > oauth2.super_client_secret` **exactly**
 - [ ] HRPAuth reachable (use the command above)
 - [ ] Mojang outbound reachable (use the command above)
 - [ ] Minecraft server's `server.properties`:
   - `online-mode=true`
   - `yggdrasil-api-url=http://winnerproxy:2779/yggdrasil` (the `/yggdrasil` suffix is **required**)
 - [ ] `/health` returns 200 from your monitoring
-- [ ] Startup log has no `WARN: hrpauth manage_token is empty`
+- [ ] Startup log has no `WARN: hrpauth client_secret is empty`
 - [ ] `config.yml` is backed up to your secrets manager (**never commit it**)
 
 ### Resource footprint
@@ -227,7 +234,7 @@ curl -sI https://sessionserver.mojang.com/session/minecraft/hasJoined?username=N
 ### What NOT to do
 
 - ❌ **Do not front with a reverse proxy** (nginx / Caddy / etc.). The Yggdrasil protocol is stateless and unencrypted; the Minecraft server can talk to WinnerProxy directly.
-- ❌ **Do not expose `manage_token` on any network the Minecraft server can reach.** Treat it as a database root password.
+- ❌ **Do not expose `client_secret` on any network the Minecraft server can reach.** It is equivalent to high-privilege service credentials.
 - ❌ **Do not expose WinnerProxy to the public internet.** Mojang session-hijack history shows: unauthenticated public exposure → RCE risk. WinnerProxy should be reachable only on the internal network between the Minecraft server and HRPAuth.
 - ❌ **Do not run as root.** Set `User=winnerproxy`.
 - ❌ **Do not set `yggdrasil-api-url=http://winnerproxy:2779/`** (missing the `/yggdrasil` suffix → 404 everywhere).

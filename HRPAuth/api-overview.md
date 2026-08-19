@@ -25,10 +25,15 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `POST` | `/login` | 普通用户登录，签发 Remember Token |
-| `POST` | `/loginbymt` | 运维使用 Manage Token 为指定用户签发 Remember Token |
-| `POST` | `/register` | 用户注册；同时支持普通路径和 Manage Token 路径 |
-| `GET` | `/logout` | 注销当前 Remember Token |
+| `POST` | `/oauth/login-ticket` | 第一方密码校验；未启用 TOTP 时直接签 OAuth2 token，启用时返回 `login_ticket` |
+| `GET` | `/oauth/authorize` | 校验 `authorization_code + PKCE` 请求 |
+| `POST` | `/oauth/authorize/decision` | 完成交互式授权并签发 authorization code |
+| `POST` | `/oauth/token` | OAuth2 token 端点 |
+| `POST` | `/oauth/revoke` | 撤销 OAuth2 access token |
+| `POST` | `/login` | 已废弃 |
+| `POST` | `/loginbymt` | 已废弃 |
+| `POST` | `/register` | 用户注册；服务代注册改为 Bearer 服务 token |
+| `GET` | `/logout` | 撤销当前 Bearer access token |
 
 ### 用户与资料
 
@@ -105,13 +110,13 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 这是业务语义最重的接口之一：
 
 - 普通路径：面向 WebUI 注册
-- 管理路径：面向 Manage Token 代注册与 Mojang 绑定
+- 服务路径：面向 Bearer 服务 token 代注册与 Mojang 绑定
 
 如果你在调 WinnerProxy 或撞名绑定逻辑，这个接口是第一现场。
 
 ### `/user/*` 与 `/change-*`
 
-这些接口大量使用 `remember_token`，并支持通过 `auth_type: "manage"` 进入运维代操作模式。
+这些接口现在统一使用 Bearer token。若是服务代操作，则需要显式目标参数与对应 scope。
 
 ### `/authserver/*`
 
@@ -123,9 +128,9 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 
 优先关注：
 
-- `remember_token` 是否正确
-- 是否忘记传 `auth_type: "manage"`
-- Manage 模式下是否补了 `uid` 或 `email`
+- `Authorization: Bearer ...` 是否存在
+- token 是否具备对应 endpoint-level scope
+- 服务模式下是否补了 `uid` 或 `email`
 
 ### 调 Yggdrasil 接口
 

@@ -24,7 +24,7 @@ HRPAuth 可以理解为一个单体后端服务，内部同时承载两类能力
 
 ### 控制器层
 
-- `controllers/auth_controller.go`：登录、注册、登出、Manage Token 登录
+- `controllers/auth_controller.go`：登录票据、注册、登出
 - `controllers/user_info_controller.go`：用户信息、邮箱声明、Mojang 绑定开关
 - `controllers/totp_controller.go`：TOTP 生成、配置、校验、状态查询
 - `controllers/texture_controller.go`：站内纹理上传、删除、查询
@@ -50,16 +50,17 @@ HRPAuth 可以理解为一个单体后端服务，内部同时承载两类能力
 
 典型接口包括：
 
-- `/login`
+- `/login` (已废弃)
 - `/register`
 - `/user`
+- `/oauth/*`
 - `/email-verification`
 - `/totp/*`
 - `/change-*`
 - `/texture/*`
 - `/captcha/*`
 
-这部分接口主要围绕 `remember_token` 展开。
+这部分接口现在主要围绕 **OAuth2 Bearer token** 展开。
 
 ### Yggdrasil 接口
 
@@ -105,15 +106,15 @@ Minecraft 客户端 / Authlib-Injector
 
 ### 站内业务 Token
 
-- 以 `remember_token` 为核心
-- 用户登录后写入 `users.remember_token`
+- 以 `oauth2_access_tokens` / `oauth2_refresh_tokens` 为核心
+- 第一方快捷登录通过 `login_ticket + TOTP` 完成二步验证
 - 用于站内业务接口
 
-### 运维 Token
+### 微服务 Token
 
-- `manage.token` 存在于配置中
-- 不是任何用户表中的 `remember_token`
-- 只能在显式声明 `auth_type: "manage"` 时进入管理路径
+- 默认由内置超级客户端签发
+- 通过 `client_credentials` 获取
+- 代用户操作时仍需显式目标参数与 endpoint-level scope
 
 ### Yggdrasil Token
 
@@ -130,7 +131,7 @@ Minecraft 客户端 / Authlib-Injector
 2. 代注册用户清理，每 24 小时执行一次
 3. Session 清理，每 24 小时执行一次
 
-其中代注册用户清理还会在每次 Manage Token 注册成功后异步触发一次。
+其中代注册用户清理还会在每次服务 token 代注册成功后异步触发一次。
 
 ## 配置初始化策略
 
