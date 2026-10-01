@@ -6,7 +6,7 @@ tags:
   - architecture
   - backend
   - auth
-updatedAt: 2026-08-15
+updatedAt: 2026-09-08
 ---
 
 # 架构概览
@@ -33,10 +33,12 @@ HRPAuth 可以理解为一个单体后端服务，内部同时承载两类能力
 
 ### 服务层
 
-- `services/auth_service.go`：认证、Token 状态机、角色创建、清理逻辑
+- `services/auth_service.go`：认证、Token 状态机、角色创建、Yggdrasil Token 清理逻辑、Token 数量上限 (`EnforceTokenLimit`)
+- `services/oauth2_service.go`：OAuth2 授权码、Token 颁发/刷新/撤销、OAuth2 Token 清理、原子竞态防护
 - `services/captcha_service.go`：图形验证码生成与校验
 - `services/email_service.go`：邮件发送和邮箱验证码
 - `services/texture_service.go`：纹理文件和 `profile_properties` 的维护
+- `services/profile_key_service.go`：Minecraft 1.19+ 聊天签名 (Profile Key) 密钥对生成、轮换与公钥签名
 
 ### 存储层
 
@@ -72,6 +74,8 @@ HRPAuth 可以理解为一个单体后端服务，内部同时承载两类能力
 - `/api/profiles/minecraft`
 - `/api/user/profile/:uuid/:textureType`
 - `/textures/:hash`
+- `/skins/MinecraftSkins/:username`（受 `legacy_skin_api` 控制）
+- `/minecraftservices/player/certificates`、`/minecraftservices/publickeys`（受 `enable_profile_key` 控制）
 
 这部分接口围绕 `accessToken + clientToken` 展开。
 
@@ -100,6 +104,17 @@ Minecraft 客户端 / Authlib-Injector
 
 适合客户端认证、会话校验、角色信息读取和纹理分发。
 
+## 微服务扩展层
+
+HRPAuth 的主服务流程严格遵循外部标准，不可扩展。微服务扩展只发生在主服务的**前流程**和**后流程**，由扩展层（relay 中间件 + 编排中间件）完成：
+
+- 服务经 `POST /services/presence` 注册心跳，可声明作用区域、SDK 地址与鉴权级别。
+- 前端 SPA 也是微服务，经 `GET /services/list` 发现与自己区域相关的服务，经 `GET /services/sdk/:name` 加载服务使用说明 JS。
+- 请求命中路由规则的前置/后置配置时，编排层做扇出转发与异步旁路分发；relay 规则把 `dest` 前缀路径转发到微服务地址。
+- 三级鉴权（0 无须 / 1 用户级 / 2 运维级）在多服务参与时取最严格级别。
+
+详见 [微服务扩展](./microservices)。
+
 ## 为什么会有两套 Token
 
 这是 HRPAuth 最值得先理解的设计点。
@@ -125,11 +140,13 @@ Minecraft 客户端 / Authlib-Injector
 
 ## 后台任务
 
-服务启动后会同时启动三个周期任务：
+服务启动后会同时启动五个周期任务：
 
-1. Token 清理，每小时执行一次
-2. 代注册用户清理，每 24 小时执行一次
-3. Session 清理，每 24 小时执行一次
+1. Yggdrasil Token 清理（`TokenCleanupController`），每 1 小时执行
+2. OAuth2 Token 清理（`OAuth2CleanupController`），每 24 小时执行
+3. 代注册用户清理（`BotUserCleanupController`），每 24 小时执行
+4. Session 清理（`SessionCleanupController`），每 24 小时执行
+5. 纹理清理（`TextureCleanupController`），每 1 小时执行
 
 其中代注册用户清理还会在每次服务 token 代注册成功后异步触发一次。
 

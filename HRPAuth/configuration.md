@@ -6,7 +6,7 @@ tags:
   - config
   - deployment
   - yggdrasil
-updatedAt: 2026-08-15
+updatedAt: 2026-09-07
 ---
 
 # 配置说明
@@ -91,6 +91,7 @@ Redis 主要用于：
 
 - `oauth2.super_client_id`
 - `oauth2.super_client_secret`
+- `oauth2.super_client_extra_scopes` — 可选，允许为内置超级客户端追加数据库相关 scope（如 `db.line.read`）。默认为空，需管理员手动配置。
 - `oauth2.public_client_id`
 - `oauth2.public_redirect_uris`
 
@@ -130,8 +131,10 @@ Redis 主要用于：
 
 - `token_expiry_days`
 - `session_expiry_seconds`
-- `max_texture_width`
-- `max_texture_height`
+- `max_texture_width`（默认 1024）：纹理宽度上限（px），超出时作为 notice/warning 返回，不拒绝上传
+- `max_texture_height`（默认 1024）：纹理高度上限（px），超出时作为 notice/warning 返回，不拒绝上传
+- `max_texture_file_size`（默认 512000）：纹理文件大小上限（bytes），超出时拒绝上传
+- `max_tokens_per_user`（默认 10）：单个用户最多持有的有效 `accessToken` 数量，达到上限后按 `issued_at` 升序吊销最旧的，详见 [Token 与鉴权体系](./token-system)。
 
 ### `yggdrasil.feature_flags`
 

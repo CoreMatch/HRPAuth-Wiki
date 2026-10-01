@@ -6,7 +6,7 @@ tags:
   - feature-flags
   - yggdrasil
   - config
-updatedAt: 2026-08-15
+updatedAt: 2026-09-07
 ---
 
 # 功能开关
@@ -38,7 +38,7 @@ HRPAuth 的功能开关主要位于 `yggdrasil.feature_flags` 下，影响的是
 
 ### `legacy_skin_api`
 
-这是兼容旧客户端或历史生态的开关。即使开启，它也不是现代站内纹理管理的主路径。
+这是兼容旧客户端或历史生态的开关。**默认开启**。开启后，`GET /skins/MinecraftSkins/{username}.png` 会按用户名解析并返回 SKIN PNG；关闭时直接返回 `404 NotFoundException`。现代站内纹理管理走的是 Yggdrasil `/api/user/profile/...`，不依赖这个开关。
 
 ### `no_mojang_namespace`
 
@@ -50,7 +50,13 @@ HRPAuth 的功能开关主要位于 `yggdrasil.feature_flags` 下，影响的是
 
 ### `enable_profile_key`
 
-如果你准备兼容更高版本客户端，或者开始接触 profile key 相关能力，这个字段就会变得关键。
+如果你准备兼容 Minecraft 1.19+ 客户端（聊天签名），需要把这个开关打开。开启后：
+
+- `POST /minecraftservices/player/certificates` 颁发或返回当前用户的聊天签名密钥对（RSA 2048，持久化在 `profile_keys`）。
+- `GET /minecraftservices/publickeys` 返回签名公钥（Mojang 信封格式）。
+- `/authserver/*` 之外多了 `/minecraftservices/*` 一组路径。
+
+> 不开启时仍然可以认证登录，只是 1.19+ 客户端的聊天消息将没有数字签名。详细字段与轮换策略参考 [Profile Keys](./profile-keys)。
 
 ### `username_check`
 

@@ -6,7 +6,7 @@ tags:
   - auth
   - minecraft
   - yggdrasil
-updatedAt: 2026-08-15
+updatedAt: 2026-09-07
 ---
 
 # HRPAuth
@@ -33,6 +33,8 @@ HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互
 6. [数据模型](./data-models)
 7. [功能开关](./feature-flags)
 8. [运行与运维](./operations)
+9. [微服务扩展](./microservices)
+10. [Profile Keys (聊天签名)](./profile-keys) — Minecraft 1.19+ 聊天签名特性实现细节
 
 ## 核心认知
 

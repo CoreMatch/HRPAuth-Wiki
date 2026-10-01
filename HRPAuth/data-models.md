@@ -6,7 +6,7 @@ tags:
   - database
   - models
   - schema
-updatedAt: 2026-08-15
+updatedAt: 2026-09-07
 ---
 
 # 数据模型
@@ -26,6 +26,7 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 | OAuth2AuthorizationCode | `oauth2_authorization_codes` | 站内授权码 |
 | Token | `tokens` | Yggdrasil Access Token 状态 |
 | Session | `sessions` | Minecraft 加服会话 |
+| ProfileKey | `profile_keys` | Minecraft 1.19+ 聊天签名密钥对 |
 
 ## User
 
@@ -41,6 +42,7 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 - `remember_token`（遗留字段）
 - `verified`
 - `totp`
+- `2FA`
 - `cbh`
 - `mbe`
 - `mojang_uuid`
@@ -49,23 +51,45 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 
 #### `cbh`
 
-`cbh` 表示账号是否“由人类创建”：
+`cbh` 表示账号是否"由人类创建"：
 
 - `true`：普通注册或已视为人工账号
 - `false`：由服务 token 代注册出来的机器人账号
 
 这个字段直接影响代注册用户清理任务。
 
+**运维代认领翻转**：通过 `POST /admin/claim-user`（Service Token + `user.claim.as-service` scope）给一个代注册用户指派真实邮箱和密码后，`cbh` 会被翻转成 `1`，避免被 30 天清理任务误删。该端点按 `username` 定位目标用户，仅对 `cbh=0` 的账号生效。详见 [接口总览](./api-overview)。
+
+**强制绑定转移**：通过 `POST /admin/force-bind`（Service Token + Manage Token）可以将代注册账号的 `mojang_uuid` 转移到玩家的手动注册账号，并删除代注册账号。适用于同时拥有代注册账号和手动注册账号的玩家。
+
 #### `mbe`
 
 `mbe` 表示是否允许 Mojang 撞名绑定。
 
-- 关闭时，撞名 Mojang 用户会被拒绝
-- 开启后，服务代注册路径可以把 `mojang_uuid` 绑定到该用户
+- 关闭时（`0`，默认），撞名 Mojang 用户会被拒绝（409 HA 优先）
+- 开启后（`1`），服务代注册路径可以把 `mojang_uuid` 绑定到该用户
+
+**读写端点**：
+
+| 端点 | 操作 |
+| --- | --- |
+| `POST /user` | 响应 `data.mbe`（0 或 1） |
+| `POST /user/mojang-bind-enable` | 设置 `mbe = 1`（幂等） |
+| `POST /user/mojang-bind-disable` | 设置 `mbe = 0`（幂等） |
+| 服务代注册 `/register` 2.a 绑定成功 | 自动重置 `mbe = 0`（与 `mojang_uuid` 写入同事务） |
+
+**15 分钟自动禁用**：启用 MBE 后开始 15 分钟倒计时。若在窗口内未完成绑定（`mojang_uuid` 写入），系统自动将 `mbe` 恢复为 `0`。绑定成功时同样会将 `mbe` 重置为 `0`。手动禁用或重新启用（重启计时器）也可取消倒计时。
 
 #### `mojang_uuid`
 
 用于记录 Mojang 正版 UUID，和系统内部 `uuid` 不是一回事。
+
+#### `2FA`
+
+`2FA` 表示是否开启双因素认证（当前仅支持 TOTP）：
+
+- `1` (true)：登录时强制进行 TOTP 验证（前提是已配置 `totp` 密钥）
+- `0` (false)：不要求双因素认证
 
 ## Profile
 
@@ -93,12 +117,21 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 
 ## OAuth2 相关表
 
-站内业务接口现在主要使用：
+站内业务接口现在统一使用 Bearer Token 进行鉴权。
 
-- `oauth2_clients`
-- `oauth2_access_tokens`
-- `oauth2_refresh_tokens`
-- `oauth2_authorization_codes`
+### OAuth2AccessToken (`oauth2_access_tokens`)
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `access_token` | string | 核心令牌字符串 |
+| `user_id` | string | 关联用户的内部 UUID |
+| `subject_type` | enum | `user` 或 `service` |
+| `expires_at` | datetime | 过期时间 |
+| `revoked_at` | datetime | 撤销时间（非空表示已失效） |
+
+### OAuth2RefreshToken (`oauth2_refresh_tokens`)
+
+用于在 `access_token` 过期后换取新令牌。
 
 ## Token
 
@@ -125,7 +158,7 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 
 ## Session
 
-`sessions` 用于记录“玩家已加入某个 serverId”的临时会话。
+`sessions` 用于记录"玩家已加入某个 serverId"的临时会话。
 
 重点字段：
 
@@ -135,6 +168,19 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 - `expires_at`
 
 `join` 写入，`hasJoined` 读取。
+
+## ProfileKey
+
+`profile_keys` 是一对一的存储 Minecraft 1.19+ Profile Key（聊天签名密钥对）。仅当 `yggdrasil.feature_flags.enable_profile_key = true` 时才会被填充。
+
+重点字段：
+
+- `user_id`（一个用户一行）
+- `public_key`、`private_key`（PEM 格式，RSA 2048）
+- `public_key_signature`（Yggdrasil 私钥对公钥的 SHA1withRSA 签名）
+- `expires_at`、`refreshed_after`（默认 48h 有效，颁发 40h 后允许轮换）
+
+完整生命周期参考 [Profile Keys](./profile-keys)。
 
 ## 关系理解
 
@@ -162,7 +208,11 @@ User
 
 ### `user_id` 在不同表里的类型表现不完全一致
 
-从代码看，`users.uid` 是数值型，而部分关联字段更偏向使用用户 UUID 字符串。读表结构和写联调脚本时，建议直接以当前模型和实际 SQL migration 为准，不要凭字段名猜。
+这是一个已知的文档偏移点，请特别注意：
+
+- **`users.uid`**：数据库主键，数值型（`uint`）。用于 `target_uid` 等业务逻辑。
+- **关联表中的 `user_id`**：在 `profiles`、`tokens`、`oauth2_access_tokens` 等表中，`user_id` 字段实际上存储的是用户的 **内部 UUID**（`varchar(32)`），对应 `users.uuid`。
+- **开发建议**：在编写 SQL 或 GORM 查询时，始终确认你是在通过 `uid` 还是 `uuid` 进行关联。
 
 ### 用户唯一性更多靠业务层而不是数据库层
 
