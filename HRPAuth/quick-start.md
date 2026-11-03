@@ -6,12 +6,17 @@ tags:
   - getting-started
   - dev
   - backend
-updatedAt: 2026-08-15
+updatedAt: 2026-11-03
 ---
 
 # 快速开始
 
-这是一条面向开发者的最短启动路径，目标是在本地把 HRPAuth 跑起来，并确认站内接口和 Yggdrasil 接口都可用。
+这是一条面向开发者的最短启动路径，目标是在本地把 HRPAuth 跑起来，并确认站内接口可用。
+
+> **拆分说明**：本页写于 2026-10 拆分前，其中的 Yggdrasil 相关配置项（`yggdrasil.*`）与
+> 联调检查（元信息、`/authserver/*` 等）现属于独立服务
+> [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API)，
+> 需在对应仓库中启动和验证；HRPAuth 核心本身只提供站内业务与 OAuth2 接口。
 
 ## 运行前准备
 

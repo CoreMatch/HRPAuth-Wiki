@@ -6,15 +6,17 @@ tags:
   - auth
   - minecraft
   - yggdrasil
-updatedAt: 2026-09-07
+updatedAt: 2026-11-03
 ---
 
 # HRPAuth
 
 HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互关联的使用场景：
 
-1. 面向站内业务的账号系统，提供注册、登录、邮箱验证、TOTP、用户资料和纹理管理。
-2. 面向 Minecraft 客户端和 Authlib-Injector 的 Yggdrasil 兼容接口，提供认证、会话、角色资料和纹理分发能力。
+1. 面向站内业务的账号系统，提供注册、登录、邮箱验证、TOTP、用户资料和 OAuth2 授权服务器能力。
+2. 面向 Minecraft 客户端和 Authlib-Injector 的 Yggdrasil 兼容接口，提供认证、会话、角色资料和纹理分发能力。**注意**：该能力在 2026-10 已从核心拆出，现由独立服务 [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API) 提供；皮肤素材库能力见 HASkinLib / HASkinProxy。
+
+> 本 Wiki 内容冻结于 2026-10 拆分前后，涉及 Yggdrasil 的页面已补充归属标注；接口权威以 [HA-Contract](https://github.com/CoreMatch/HA-Contract) 的契约为准。
 
 ## 这套 Wiki 适合谁
 
@@ -40,10 +42,10 @@ HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互
 
 ### 两套鉴权体系并存
 
-HRPAuth 同时维护两套彼此独立的鉴权体系：
+HRPAuth 生态同时维护两套彼此独立的鉴权体系：
 
-- 站内业务体系：以 OAuth2 Bearer token 为核心，服务于 WebUI 和后台管理接口。
-- Yggdrasil 体系：以 `accessToken + clientToken` 为核心，服务于 Minecraft 客户端和 Authlib-Injector。
+- 站内业务体系：以 OAuth2 Bearer token 为核心，服务于 WebUI 和后台管理接口（HRPAuth 核心）。
+- Yggdrasil 体系：以 `accessToken + clientToken` 为核心，服务于 Minecraft 客户端和 Authlib-Injector（HRPAuth-Yggdrasil-API 服务）。
 
 这两套 Token 不能混用。开发联调时，先分清当前调用的是哪一条链路，通常能省掉一半的排查时间。
 
@@ -61,7 +63,7 @@ HRPAuth 同时维护两套彼此独立的鉴权体系：
 
 ### 默认目标是兼容 Minecraft 生态
 
-Yggdrasil 元信息、纹理签名、公钥暴露、会话校验、资料查询等能力都围绕 Minecraft 客户端兼容性展开，业务接口只是同一服务里的另一条能力线。
+Yggdrasil 元信息、纹理签名、公钥暴露、会话校验、资料查询等能力都围绕 Minecraft 客户端兼容性展开——这些能力现由 HRPAuth-Yggdrasil-API（协议与游戏账号）与 HASkinLib / HASkinProxy（皮肤素材库与 CSL 兼容）承载，站内业务接口是核心服务里的另一条能力线。
 
 ## 代码视角下的模块划分
 

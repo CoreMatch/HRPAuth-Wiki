@@ -6,10 +6,15 @@ tags:
   - architecture
   - backend
   - auth
-updatedAt: 2026-09-08
+updatedAt: 2026-11-03
 ---
 
 # 架构概览
+
+> **拆分说明**：本页描述的是 2026-10 拆分前的单体结构。Yggdrasil 兼容层（含
+> `yggdrasil_controller.go`、Yggdrasil Token 清理、Profile Key、旧版皮肤 API）已迁至独立服务
+> [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API)；
+> 皮肤素材库能力见 HASkinLib / HASkinProxy。下文中涉及这些模块的目录描述仅作历史参考。
 
 HRPAuth 可以理解为一个单体后端服务，内部同时承载两类能力：
 

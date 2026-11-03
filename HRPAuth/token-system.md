@@ -6,12 +6,16 @@ tags:
   - token
   - auth
   - security
-updatedAt: 2026-09-08
+updatedAt: 2026-11-03
 ---
 
 # Token 与鉴权体系
 
 HRPAuth 的复杂度主要来自"一个服务里有多套凭证系统"。本节旨在理清各类 Token 的生命周期、作用域及其相互关系。
+
+> **拆分说明**：2026-10 拆分后，Yggdrasil Token（`accessToken`/`clientToken`）的颁发、
+> 状态机与清理逻辑位于 [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API)
+> 服务；站内 OAuth2 体系仍在 HRPAuth 核心。
 
 ## 1. Token 一览表
 
@@ -57,7 +61,7 @@ Yggdrasil Token (`accessToken`) 存在三种状态：
 
 ### 3.2 单用户 Token 数量上限
 
-按照 Yggdrasil 规范，单个用户允许同时持有多个 `accessToken`，但服务端应对数量加以限制。HRPAuth 在 `yggdrasil.security.max_tokens_per_user`（默认 `10`）生效：
+按照 Yggdrasil 规范，单个用户允许同时持有多个 `accessToken`，但服务端应对数量加以限制。HRPAuth-Yggdrasil-API 在 `yggdrasil.security.max_tokens_per_user`（默认 `10`）生效：
 
 - 每次 `/authenticate` 或 `/refresh` 创建新 Token 前，会检查当前用户的 `valid` Token 数量。
 - 若已达上限，**最早颁发的** `valid` Token 会被标记为 `invalid`（按 `issued_at` 升序淘汰），再插入新 Token。

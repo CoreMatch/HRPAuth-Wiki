@@ -7,12 +7,14 @@ tags:
   - yggdrasil
   - csl
   - customskinloader
-updatedAt: 2026-09-04
+updatedAt: 2026-11-03
 ---
 
 # HASkinProxy
 
 HASkinProxy is a lightweight compatibility proxy that sits between a Yggdrasil-compliant authentication service (HRPAuth) and Minecraft clients using the [CustomSkinLoader](https://github.com/xfl03/MCCustomSkinLoader) (CSL) JSON protocol. It translates standard Yggdrasil session responses into CSL responses, and additionally forwards texture-management operations (upload / delete / get) to HRPAuth so the WEBUI and SDK can manage skins without talking to HRPAuth directly.
+
+> **Note (2026-10 split)**: The Yggdrasil protocol surface and texture management are now provided by the separate [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API) service; HASkinProxy still talks to the HRPAuth core origin, which relays Yggdrasil traffic to that service. Skin library capabilities live in HASkinLib.
 
 ## Core Features
 
