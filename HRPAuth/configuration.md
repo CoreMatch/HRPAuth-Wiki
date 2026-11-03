@@ -6,12 +6,19 @@ tags:
   - config
   - deployment
   - yggdrasil
-updatedAt: 2026-09-07
+updatedAt: 2026-11-03
 ---
 
 # 配置说明
 
 HRPAuth 使用根目录下的 `config.yaml` 作为主配置文件。首次启动时，如果文件不存在，服务会自动生成一份默认配置。
+
+> **版本说明**：核心配置 schema 当前为 **v11**（2026-10-22 起）。自 v8 拆分后，`yggdrasil`、
+> `keygen` 等块已**不再属于核心配置**，相关配置迁至
+> [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API) 服务；
+> 核心新增 `core_api`、`yggdrasil_api`（服务间通信）、`sdk_packages` 与数据库重试字段。
+> 本页以下章节描述的是拆分前的结构，最新字段以 HA-Contract 的
+> `docs/dev/HRPAuth/configuration.md` 为准。
 
 ## 配置生命周期
 

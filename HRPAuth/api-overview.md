@@ -6,12 +6,19 @@ tags:
   - api
   - http
   - yggdrasil
-updatedAt: 2026-09-12
+updatedAt: 2026-11-03
 ---
 
 # 接口总览
 
 HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口。
+
+> **2026-10 拆分说明**：Yggdrasil 协议接口与纹理管理接口已从 HRPAuth 核心迁至独立的
+> [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API) 服务；
+> 部分旧接口（`/change-profile-name`、`/totp/hasbeenenabled`、`/generate-key`、
+> `/texture/rewrite-callback` 等）已从代码中移除。接口权威以
+> [HA-Contract](https://github.com/CoreMatch/HA-Contract) 的 OpenAPI 契约为准，
+> 下表中标注了迁移/移除状态的行供对照。
 
 ## 站内业务接口
 
@@ -40,14 +47,16 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 | `POST` | `/user` | Bearer | 获取用户基础信息 |
 | `DELETE` | `/user` | Bearer | 申请注销账号（进入冷静期并使令牌失效） |
 | `GET` | `/user/deleted` | Service Bearer | 获取当前处于冷静期的账号列表 |
-| `POST` | `/user/declare-email` | Service Bearer | 为指定用户声明邮箱 |
-| `POST` | `/user/mojang-bind-enable` | Bearer | 开启 Mojang 绑定许可（15 分钟自动过期） |
-| `POST` | `/user/mojang-bind-disable` | Bearer | 关闭 Mojang 绑定许可 |
+| `POST` | `/user/declare-email` | Service Bearer | 为指定用户声明邮箱（**已从核心移除**，调用方迁移待代码侧处理） |
+| `POST` | `/user/mojang-bind-enable` | Bearer | 开启 Mojang 绑定许可（15 分钟自动过期）（**已迁移**至 Yggdrasil-API 的 `/player/mojang-bind-enable`） |
+| `POST` | `/user/mojang-bind-disable` | Bearer | 关闭 Mojang 绑定许可（**已迁移**至 Yggdrasil-API 的 `/player/mojang-bind-disable`） |
 | `POST` | `/user/lookup` | 无 | 根据 `uid` 查用户名，或根据 `username` 查 UID（二选一） |
 | `POST` | `/change-username` | Bearer | 修改站内用户名 |
-| `POST` | `/change-profile-name` | Bearer | 修改 Minecraft 角色名 |
+| `POST` | `/change-profile-name` | Bearer | 修改 Minecraft 角色名（**已移除**） |
 
 ### 运维管理
+
+> `/admin/claim-user` 与 `/admin/force-bind` 现属于 HRPAuth-Yggdrasil-API 的契约（见其 OpenAPI）；`force-bind` 的核心侧处理器尚未实现（见 HA-Contract agents.md Roadmap）。
 
 | 方法 | 路径 | 鉴权 | 说明 |
 | --- | --- | --- | --- |
@@ -62,28 +71,36 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 | `POST` | `/totp/setup` | Bearer | 配置 TOTP |
 | `POST` | `/totp/verify` | Login Ticket | 校验 TOTP 动态码并换取 OAuth2 Token |
 | `POST` | `/totp/toggle` | Bearer | 开启或关闭双因素认证 |
-| `POST` | `/totp/hasbeenenabled` | Bearer | 查询是否已开启 TOTP |
+| `POST` | `/totp/hasbeenenabled` | Bearer | 查询是否已开启 TOTP（**已移除**，状态查询见 `/user/security/2fa/status`） |
 | `POST` | `/captcha` | 无 | 生成图形验证码 |
 | `GET` | `/captcha/enabled` | 无 | 查询是否启用图形验证码 |
 | `GET` | `/captcha/image/:token` | 无 | 拉取验证码图片 |
 
 ### 密钥与纹理
 
+> 本节能力（纹理上传/删除/查询、Mojang 材质代理、密钥生成）现由
+> **HRPAuth-Yggdrasil-API** 提供；皮肤素材库能力另见 **HASkinLib** / **HASkinProxy**。
+
 | 方法 | 路径 | 鉴权 | 说明 |
 | --- | --- | --- | --- |
-| `POST` | `/generate-key` | 无 | 生成 RSA 密钥对 |
-| `POST` | `/texture/upload` | Bearer | 上传皮肤或披风 |
-| `POST` | `/texture/delete` | Bearer | 删除纹理 |
-| `POST` | `/texture/get` | Bearer | 获取纹理信息 |
-| `POST` | `/texture/rewrite-callback` | Manage Token | 批量重写所有材质 URL 为当前 `callback.url`（支持 `dry_run` 预览） |
-| `GET` | `/texture/mojang/:uuid` | 无 | 传入 Mojang UUID，由后端从 Mojang 拉取材质并以 PNG 二进制返回（支持 `?type=cape`） |
-| `GET` | `/mojang/profile/:uuid` | 无 | 传入 Mojang UUID，由后端从 Mojang Session Server 获取玩家 Profile（id、name、是否有披风），不下载材质 |
+| `POST` | `/generate-key` | 无 | 生成 RSA 密钥对（**已移除**） |
+| `POST` | `/texture/upload` | Bearer | 上传皮肤或披风（**已迁移**至 Yggdrasil-API 的 `/texture/upload/:uuid`） |
+| `POST` | `/texture/delete` | Bearer | 删除纹理（**已迁移**至 Yggdrasil-API 的 `DELETE /texture/delete/:uuid/:type`） |
+| `POST` | `/texture/get` | Bearer | 获取纹理信息（**已迁移**至 Yggdrasil-API） |
+| `POST` | `/texture/rewrite-callback` | Manage Token | 批量重写所有材质 URL 为当前 `callback.url`（支持 `dry_run` 预览）（**已移除**） |
+| `GET` | `/texture/mojang/:uuid` | 无 | 传入 Mojang UUID，由后端从 Mojang 拉取材质并以 PNG 二进制返回（支持 `?type=cape`）（**已迁移**至 Yggdrasil-API） |
+| `GET` | `/mojang/profile/:uuid` | 无 | 传入 Mojang UUID，由后端从 Mojang Session Server 获取玩家 Profile（id、name、是否有披风），不下载材质（**已迁移**至 Yggdrasil-API） |
 
 ---
 
 ## Yggdrasil 接口
 
 这些接口由 Minecraft 客户端直接调用，遵循 Yggdrasil 协议规范。
+
+> **归属说明**：以下接口现由独立服务
+> [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API)
+> 提供（2026-10 自 HRPAuth 核心拆分），协议面完整规范见 HA-Contract 的
+> `docs/dev/HRPAuth/yggdrasil-api.md`。
 
 ### authserver
 
@@ -144,4 +161,4 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 记住站内 OAuth2 Access Token 与 Yggdrasil Access Token 是两套系统，不可混用。
 
 ### 4. Token 数量上限
-`yggdrasil.security.max_tokens_per_user`（默认 10）约束单个用户最多持有的有效 `accessToken` 数量。详见 [Token 与鉴权体系](./token-system)。
+`yggdrasil.security.max_tokens_per_user`（默认 10，现位于 HRPAuth-Yggdrasil-API 的配置中）约束单个用户最多持有的有效 `accessToken` 数量。详见 [Token 与鉴权体系](./token-system)。
