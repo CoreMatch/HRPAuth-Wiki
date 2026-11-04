@@ -24,12 +24,12 @@ Coverage is therefore: installation/quick-start, configuration, architecture, HT
 - When a richer presentation was later needed, a separate site repository was built instead of adding a generator here (see 0003).
 
 ## Evidence
-- README.md:1 — the entire README is the single line `# HRPAuth-Wiki`.
-- LICENSE:1-3 — GNU Affero General Public License Version 3.
+- README.md (field: # HRPAuth-Wiki) — the entire README is the single line `# HRPAuth-Wiki`.
+- LICENSE (field: GNU AFFERO GENERAL PUBLIC LICENSE) — GNU Affero General Public License Version 3.
 - Verified file inventory (full repository listing inspected): exactly 21 Markdown files — README.md plus 20 content pages (HRPAuth/ 11, HASkinProxy/ 2, WinnerProxy/ 7).
 - Verified absence: no package.json, mkdocs.yml, docusaurus config, Gemfile, CI workflow, or any hidden file anywhere in the repository (full listing plus dotfile scan).
-- HRPAuth/index.md:1-10 — YAML frontmatter (`title`/`order`/`tags`/`updatedAt`) with no in-repo consumer.
-- WinnerProxy/configuration.md:15 and WinnerProxy/configuration.md:175 — manual bilingual layout (`## 中文` / `## English`).
+- HRPAuth/index.md (field: updatedAt) — YAML frontmatter (`title`/`order`/`tags`/`updatedAt`) with no in-repo consumer.
+- WinnerProxy/configuration.md (field: ## 中文) and WinnerProxy/configuration.md (field: ## English) — manual bilingual layout (`## 中文` / `## English`).
 - commit 6d8c78400ef1f6db6c4d7056bea65a0b2cd235f4 — Initial commit (only LICENSE and README.md).
 - commit c5a312b33e15e21b0add619058f526b011020238 — docs: add complete documentation for HRPAuth and WinnerProxy (introduces HRPAuth/index.md).
 - commit 8df905ae843ea70c2c74916a442f1b52c99d366e — docs: migrate to OAuth2 and add WinnerProxy docs (introduces WinnerProxy/index.md).
