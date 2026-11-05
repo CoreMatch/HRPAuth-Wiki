@@ -3,9 +3,6 @@
 ## Status
 Accepted
 
-## Date
-2026-11-04
-
 ## Context
 This wiki describes HTTP endpoints, token flows, and configuration of the HRPAuth ecosystem; the frozen pages and the codebase can disagree (see 0002). Two repositories describing behavior can disagree; exactly one of them must win. The wiki pages themselves name HA-Contract as the interface authority, and the contract repository is https://github.com/CoreMatch/HA-Contract.
 

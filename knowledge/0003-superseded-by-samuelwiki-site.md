@@ -3,9 +3,6 @@
 ## Status
 Superseded
 
-## Date
-not verified (author statement; nothing in this repository records the decision)
-
 ## Context
 This wiki is a frozen, plain-Markdown snapshot (see 0001 and 0002). A separate repository, SamuelWiki, is a VitePress-based documentation site covering the whole HA ecosystem, wired to the custom domain wiki.mcnb.dev. Per the author, this wiki is outdated and no longer maintained; the wiki site is the current documentation venue.
 

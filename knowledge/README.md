@@ -13,7 +13,7 @@ This knowledge base is a memo the project writes to itself. It is self-hosted an
 
 ## Maintenance
 
-- New entries go in `knowledge/NNNN-<slug>.md` with the next unused ID (IDs start at 0001 and are never reused). Keep the fixed structure: `Status`, `Date`, `Context`, `Decision`, `Consequences`, `Evidence`.
+- New entries go in `knowledge/NNNN-<slug>.md` with the next unused ID (IDs start at 0001 and are never reused). Keep the fixed structure: `Status`, `Context`, `Decision`, `Consequences`, `Evidence`.
 - Entries record the current state only: what the project is now, and why it is designed that way. Do not write how things used to be; descriptions of removed code, deprecated fields, or old behavior are deleted, not kept. The one exception is past behavior that explains a change of design intent — why the current state differs from what came before.
 - Every claim must be verified against actual files before it is written down. Anything that cannot be verified must be marked `not verified` instead of guessed.
 - The wiki pages themselves are frozen (see [0002](./0002-content-frozen-before-service-split.md)) and this wiki is no longer maintained as a documentation venue (see [0003](./0003-superseded-by-samuelwiki-site.md)). Do not rewrite frozen pages to chase the codebase; record new facts as knowledge entries or in the successor venues.
