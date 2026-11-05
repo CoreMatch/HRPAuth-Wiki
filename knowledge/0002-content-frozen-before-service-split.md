@@ -3,9 +3,6 @@
 ## Status
 Accepted
 
-## Date
-2026-10-01
-
 ## Context
 The Yggdrasil compatibility stack was moved out of the HRPAuth core into the separate HRPAuth-Yggdrasil-API service. The wiki pages describe the pre-split monolith. Rather than rewrite every page to track the moving code, the wiki content was frozen at its then-current state, and the split is recorded on the pages as attribution annotations.
 
