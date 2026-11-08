@@ -1,6 +1,33 @@
+---
+layout: home
+
+hero:
+  name: HRPAuth-Wiki
+  text: 项目生态的 Wiki
+  tagline: 按项目分层的现状文档——游戏服务栈（Avalon / Cascade / RW-Mod-Injector）、部署运维工具，以及 2026-10 拆分前的冻结快照。
+  actions:
+    - theme: brand
+      text: 游戏服务栈
+      link: /Avalon/
+    - theme: alt
+      text: 决策记录
+      link: /knowledge/
+
+features:
+  - title: 玩家
+    details: 模组装配命令与失败提示、/inj restore 还原；大厅与 /goto 跳转。
+    link: /RW-Mod-Injector/
+  - title: 运维
+    details: 部署编排、运维面板、回归脚本；大厅拓扑与部署门控。
+    link: /HA-Services-Deployer/
+  - title: 插件作者
+    details: Avalon 插件三档：observe / veto / deliver 与双闸门授权。
+    link: /Avalon/plugins
+---
+
 # HRPAuth-Wiki
 
-项目生态的 Wiki：按项目分层的纯 Markdown 文档，无站点生成器（见 [knowledge/0001](./knowledge/0001-plain-markdown-content-repo.md)）。
+项目生态的 Wiki：按项目分层的 Markdown 文档，Markdown 是唯一内容源，由渲染层生成站点（决策见 [knowledge/0006](./knowledge/0006-rendering-layer-over-markdown.md)；原 [0001](./knowledge/0001-plain-markdown-content-repo.md) 已被取代）。
 
 ## 游戏服务栈（现状文档）
 
