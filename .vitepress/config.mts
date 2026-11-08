@@ -11,9 +11,11 @@ export default defineConfig({
   lastUpdated: true,
   srcDir: '.',
   srcExclude: ['docs/**', 'node_modules/**', '.github/**', 'build/**'],
-  // README.md 是唯一内容源的入口页，映射为站点根路径（不新建副本）。
+  // README.md 是唯一内容源的入口页，映射为站点根路径与 knowledge 目录
+  // 路由（不新建副本）。
   rewrites: {
-    'README.md': 'index.md'
+    'README.md': 'index.md',
+    'knowledge/README.md': 'knowledge/index.md'
   },
   themeConfig: {
     search: {
