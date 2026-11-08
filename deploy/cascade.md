@@ -20,7 +20,7 @@ Cascade 是 Rusted Warfare 群组服务器的边缘反向代理：玩家唯一�
 | 数据库 | SQLite（默认，`db_path`）或 MySQL（`mysql_dsn`） |
 | Redis | 可选（玩家认证缓存：`redis_addr` 等） |
 | HRPAuth | 可选（玩家认证/认领：`hrpauth_url` 等） |
-| 后端 | 必需：至少一个 Avalon（`backends` + `default_backend_id`，见 [Avalon 部署者文档](../Avalon/deployment.md)） |
+| 后端 | 必需：至少一个 Avalon（`backends` + `default_backend_id`，见 [Avalon 部署者文档](./avalon.md)） |
 | 签名密钥 | 必需：Ed25519 PKCS#8 私钥（`proxy_private_key_path`，权限 0600） |
 | mTLS 材料 | 仅当存在 `pinned`/`mtls` 传输的后端：`backend_client_cert` / `backend_client_key`（0600）/ `backend_ca_pool` |
 | 进程监督 | 编排形态归 Tinyvisor（`deploy-manifest.yaml` 声明 `manager: tinyvisor`，`restart_policy: unless-stopped`、`auto_start: true`） |

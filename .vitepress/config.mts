@@ -46,41 +46,34 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' }
     ],
-    // 侧边栏两级：项目 → 部署者 / 开发者。
+    // 两条轨道物理分开：/deploy/ 侧边栏只列部署者文档，/dev/ 只列开发者
+    // 文档；互不出现对方条目。页脚 prev/next 跟随当前侧边栏，不跨轨。
+    // 每轨末尾一个不显眼的入口回到首页重选身份。
     sidebar: {
-      '/': [
+      '/deploy/': [
         {
-          text: 'Avalon',
+          text: '部署者文档',
           items: [
-            { text: '部署者', link: '/Avalon/deployment' },
-            { text: '开发者', link: '/Avalon/development' }
+            { text: '总览', link: '/deploy/' },
+            { text: 'Avalon', link: '/deploy/avalon' },
+            { text: 'Cascade', link: '/deploy/cascade' },
+            { text: 'RW-Mod-Injector（玩家使用）', link: '/deploy/rw-mod-injector' },
+            { text: 'HA-Services-Deployer', link: '/deploy/ha-services-deployer' },
+            { text: '↩ 重选身份', link: '/' }
           ]
-        },
+        }
+      ],
+      '/dev/': [
         {
-          text: 'HA-Services-Deployer',
+          text: '开发者文档',
           items: [
-            { text: '部署者', link: '/HA-Services-Deployer/deployment' },
-            { text: '开发者', link: '/HA-Services-Deployer/development' }
-          ]
-        },
-        {
-          text: 'Cascade',
-          items: [
-            { text: '部署者', link: '/Cascade/deployment' },
-            { text: '开发者', link: '/Cascade/development' }
-          ]
-        },
-        {
-          text: 'RW-Mod-Injector',
-          items: [
-            { text: '文档', link: '/RW-Mod-Injector/' },
-            { text: '回归脚本', link: '/RW-Mod-Injector/regression' }
-          ]
-        },
-        {
-          text: 'HA-Services-MaintenanceView',
-          items: [
-            { text: '文档', link: '/HA-Services-MaintenanceView/' }
+            { text: '总览', link: '/dev/' },
+            { text: 'Avalon', link: '/dev/avalon' },
+            { text: 'Cascade', link: '/dev/cascade' },
+            { text: 'RW-Mod-Injector', link: '/dev/rw-mod-injector' },
+            { text: 'RW-Mod-Injector 回归脚本', link: '/dev/rw-mod-injector-regression' },
+            { text: 'HA-Services-Deployer', link: '/dev/ha-services-deployer' },
+            { text: '↩ 重选身份', link: '/' }
           ]
         }
       ]

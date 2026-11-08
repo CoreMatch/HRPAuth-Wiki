@@ -182,7 +182,7 @@ backends:
 ### 其余文件
 
 - `RelayConfig.json`：`mainID`（默认 "R"）、`upList`（默认 true）。
-- `Plugins.json`：插件配置。空（无文件或空 entries）= 所有准入路径立即放行、零网络 I/O；非法（坏 JSON、重名、非法 URL、密钥短于 16 字节、未知否决事件）= 启动失败并指明条目与字段。插件运维见[开发者文档](./development.md)的扩展点一节。
+- `Plugins.json`：插件配置。空（无文件或空 entries）= 所有准入路径立即放行、零网络 I/O；非法（坏 JSON、重名、非法 URL、密钥短于 16 字节、未知否决事件）= 启动失败并指明条目与字段。插件机制与授权见开发者轨道的扩展点一节。
 - `Settings.bin`：状态文件（语言、首启标记、UUID），非运维手改项。
 
 ## 端口与暴露面

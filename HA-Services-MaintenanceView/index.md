@@ -22,7 +22,7 @@ HA Services MaintenanceView 是这套服务栈的浏览器运维面板：展示 
 
 ## 能做什么
 
-- 在编排区发起**部署**与**回滚**（含 dry-run）；面板把请求转发给 Deployer，由 Deployer 过前置检查门并执行。一次运行具体做什么见 [HA-Services-Deployer](../HA-Services-Deployer/deployment.md)。
+- 在编排区发起**部署**与**回滚**（含 dry-run）；面板把请求转发给 Deployer，由 Deployer 过前置检查门并执行。一次运行具体做什么见 [HA-Services-Deployer](../deploy/ha-services-deployer.md)。
 - 对少数已知服务做**首次配置引导**：运行一次下载的二进制生成默认配置，再改写监听地址与跨服务 URL。
 
 ## 可用性与 Manifest 同源
@@ -37,4 +37,4 @@ HA Services MaintenanceView 是这套服务栈的浏览器运维面板：展示 
 
 ## 相关
 
-- [HA-Services-Deployer](../HA-Services-Deployer/deployment.md)：面板代理的后端，部署与回滚的实际执行者
+- [HA-Services-Deployer](../deploy/ha-services-deployer.md)：面板代理的后端，部署与回滚的实际执行者
