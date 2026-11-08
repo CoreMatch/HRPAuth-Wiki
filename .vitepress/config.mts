@@ -59,6 +59,7 @@ export default defineConfig({
             { text: 'Cascade', link: '/deploy/cascade' },
             { text: 'RW-Mod-Injector（玩家使用）', link: '/deploy/rw-mod-injector' },
             { text: 'HA-Services-Deployer', link: '/deploy/ha-services-deployer' },
+            { text: 'HA-Services-MaintenanceView', link: '/deploy/ha-services-maintenanceview' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
@@ -73,6 +74,7 @@ export default defineConfig({
             { text: 'RW-Mod-Injector', link: '/dev/rw-mod-injector' },
             { text: 'RW-Mod-Injector 回归脚本', link: '/dev/rw-mod-injector-regression' },
             { text: 'HA-Services-Deployer', link: '/dev/ha-services-deployer' },
+            { text: 'HA-Services-MaintenanceView', link: '/dev/ha-services-maintenanceview' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
