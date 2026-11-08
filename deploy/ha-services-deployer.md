@@ -45,6 +45,12 @@ orchestration:
 - 启用成功标志：启动日志 `orchestration enabled: scan_roots=... tinyvisor=...`。
 - 本服务自身由面板管理（`deploy-manifest.yaml` 声明 `manager: aapanel`），编排器对自身只读；清单预定安装根 `/www/wwwroot/hasd`、二进制 `hasd`。清单注明本服务尚未在生产部署，首次实际部署以现场为准。
 
+### 清单 kind 三种形态
+
+- `service`：有自己进程与端口的服务——声明端口、健康端点、依赖、裸金属/容器执行段，是部署流水线的完整对象。
+- `external`：不在编排内的外部依赖（如面板装的 MySQL/Redis）——只做可达性检查。
+- `plugin`：插件型产物（装进别人进程的 jar 一类，如 VelocityGate、BedwarsRel-MCA）——声明安装目标运行时（`plugin.runtime`，目标在编排体系内时可加 `target_project`）、`plugin.plugins_dir` 与产物；没有自身进程，故不声明端口与健康端点。编排器对插件条目**只登记与校验、不执行安装**（阶段未设），运行记录中结果为 `plugin`，回滚被明确拒绝。缺 `plugin` 段或其必填字段时聚合校验响亮失败。
+
 ### local_path 产物纪律
 
 清单声明 `baremetal.artifact.source: local_path` 的项目（当前全部），部署流水线硬要求**产物文件 + 同目录同名 `.sha256` 旁路**两件齐备，且旁路声明的校验和必须与产物内容一致——临时文件落盘、整体校验、原子改名，残缺或掉包产物进不了版本目录。preflight（deploy 模式）对这三点逐一检查，缺任一即阻断并点名路径。因此**构建脚本产出二进制时必须同时产出 `.sha256`**（`sha256sum <binary> | awk '{print $1}' > <binary>.sha256`）；只交二进制不交旁路的构建产物无法进入编排部署。

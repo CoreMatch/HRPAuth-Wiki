@@ -12,6 +12,8 @@ updatedAt: 2026-11-08
 
 BedwarsRel-MCA 是 BedwarsRel（Minecraft 起床战争 Bukkit 插件）的 fork：玩法 100% 上游，fork 只加了**对局结果上报**（把每局结果送进 MatchCoreArena-Server 结算）与构建现代化。
 
+**形态说明**：它是插件 jar，装进第三方 MC 服务器进程，不是本生态自管的独立进程——仓库根的 `deploy-manifest.yaml` 以 `kind: plugin` 向编排器登记（安装目标 `bukkit-server` 的 `plugins/` 目录、产物、对 mca-server 的 required 依赖），但 HA-Services-Deployer 对插件条目**只登记与校验、不执行安装**（阶段未设）。
+
 **支持矩阵收窄**：只支持 Minecraft **1.8.x 与 1.12** 服务端（Spigot/Paper/CraftBukkit）；1.9–1.11 没有 NMS 模块，装不上。
 
 ## 运行前提

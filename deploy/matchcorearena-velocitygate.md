@@ -12,7 +12,7 @@ updatedAt: 2026-11-08
 
 VelocityGate 是 Velocity 代理插件：把"已成局的玩家"送进对应的后端游戏服。玩家连上代理后按 UUID 查一次 MatchCoreArena-Server 的成局分配（OPS 只读端点 `GET /api/matchmaking/assignment/{uuid}`，契约 1.9.1），查到有效分配且能映射到已注册服务器就转过去，其余一律留在大厅。**客户端零改动**；后端游戏服只对代理可达，不暴露公网。
 
-**形态说明**：它是插件 jar，装进别人的 Velocity 进程，不是本生态自管的独立进程——因此没有 `deploy-manifest.yaml`，也不经 HA-Services-Deployer 编排。本页讲怎么把它装进一台 Velocity 代理。
+**形态说明**：它是插件 jar，装进别人的 Velocity 进程，不是本生态自管的独立进程——仓库根的 `deploy-manifest.yaml` 以 `kind: plugin` 向编排器登记（安装目标 `velocity-proxy` 的 `plugins/` 目录、产物、对 mca-server 的 required 依赖），但 HA-Services-Deployer 对插件条目**只登记与校验、不执行安装**（阶段未设）。本页讲怎么把它装进一台 Velocity 代理。
 
 ## 运行前提
 
