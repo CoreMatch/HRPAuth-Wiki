@@ -11,6 +11,7 @@
 - [HASkinProxy](./haskinproxy.md)——Yggdrasil → CustomSkinLoader 兼容代理
 - [WinnerProxy](./winnerproxy.md)——Mojang 玩家保留 UUID 的加入代理
 - [MatchCoreArena-Server](./matchcorearena-server.md)——竞技平台匹配与结算核心（Go/Gin 独立服务）
+- [MatchCoreArena-VelocityGate](./matchcorearena-velocitygate.md)——Velocity 代理插件：已成局玩家路由进游戏服（装进 Velocity，非独立进程）
 - [MatchCoreArena-Client](./matchcorearena-client.md)——玩家桌面客户端（无分发包，源码构建路径）
 - [BedwarsRel-MCA](./bedwarsrel-mca.md)——游戏侧上报插件：安装、match-reporting 配置、上报验证
 - [HRPAuth-Yggdrasil-API](./hrpauth-yggdrasil-api.md)——Yggdrasil 兼容认证服务（authlib-injector 可直连）

@@ -45,6 +45,10 @@ orchestration:
 - 启用成功标志：启动日志 `orchestration enabled: scan_roots=... tinyvisor=...`。
 - 本服务自身由面板管理（`deploy-manifest.yaml` 声明 `manager: aapanel`），编排器对自身只读；清单预定安装根 `/www/wwwroot/hasd`、二进制 `hasd`。清单注明本服务尚未在生产部署，首次实际部署以现场为准。
 
+### local_path 产物纪律
+
+清单声明 `baremetal.artifact.source: local_path` 的项目（当前全部），部署流水线硬要求**产物文件 + 同目录同名 `.sha256` 旁路**两件齐备，且旁路声明的校验和必须与产物内容一致——临时文件落盘、整体校验、原子改名，残缺或掉包产物进不了版本目录。preflight（deploy 模式）对这三点逐一检查，缺任一即阻断并点名路径。因此**构建脚本产出二进制时必须同时产出 `.sha256`**（`sha256sum <binary> | awk '{print $1}' > <binary>.sha256`）；只交二进制不交旁路的构建产物无法进入编排部署。
+
 ## 配置项表
 
 配置在 `config.yaml`，启动时读取（`main.go::config.Load`）；仓库未声明热加载机制，改动重启生效。旧版本文件装载时自动迁移（v1→v2 仅补 `orchestration` 零值段）。
@@ -108,7 +112,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST http://127.0.0.1:2770/api/v1/de
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | `POST /run`、`/rollback` 返回 503 | 未配置 `deploy_token`（fail-closed，绝不退化为无鉴权） | 在凭据文件配置 `deploy_token` 并重启 |
-| `POST /run` 返回 400 附分级报告 | 前置检查阻断项（目录/软链不可写、env 缺失、密钥不可解析、Tinyvisor 不可达或密钥无效、端口被占、磁盘不足、依赖不可达） | 按报告逐条修复，每条带具体路径/端口 |
+| `POST /run` 返回 400 附分级报告 | 前置检查阻断项（目录/软链不可写、env 缺失、密钥不可解析、Tinyvisor 不可达或密钥无效、端口被占、磁盘不足、产物或 `.sha256` 旁路缺失/不符、依赖不可达） | 按报告逐条修复，每条带具体路径/端口 |
 | 清单装载被拒，报出位置与原因 | 命中凭据扫描：凭据类键名带字面值 / 值形似密钥材料 / 占位符不是整值 `${secret:<name>}` | 凭据改为 `${secret:<name>}` 引用，值放凭据文件 `smoke_secrets` |
 | 校验报告出现项目重名警告 | 并行 worktree 等同名清单 | 默认按扫描根顺序取第一个；需要严格时开 `orchestration.strict_project_names` |
 | 回滚被拒"目标镜像已不存在" | 容器回滚按运行记录的镜像摘要定位，该摘要镜像本机已不在 | 重新部署该版本记录新摘要；不存在按标签或近似镜像顶替的路径 |
