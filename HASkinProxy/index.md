@@ -30,4 +30,4 @@ Use HASkinProxy when Minecraft clients in your network use CSL instead of the Yg
 
 ## Documentation
 
-1. [API Reference](./api)
+1. [API Reference](./api.md)

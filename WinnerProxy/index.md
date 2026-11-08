@@ -22,9 +22,9 @@ WinnerProxy 是一个高性能的协议转换代理，位于 Minecraft 服务端
 
 ## 文档导航
 
-1. [架构设计](./architecture)
-2. [数据流转](./data-flow)
-3. [配置说明](./configuration)
-4. [部署指南](./deployment)
-5. [故障排查](./troubleshooting)
-6. [API 参考](./api)
+1. [架构设计](./architecture.md)
+2. [数据流转](./data-flow.md)
+3. [配置说明](./configuration.md)
+4. [部署指南](./deployment.md)
+5. [故障排查](./troubleshooting.md)
+6. [API 参考](./api.md)

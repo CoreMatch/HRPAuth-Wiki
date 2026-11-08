@@ -56,7 +56,7 @@ HRPAuth 的功能开关主要位于 `yggdrasil.feature_flags` 下，影响的是
 - `GET /minecraftservices/publickeys` 返回签名公钥（Mojang 信封格式）。
 - `/authserver/*` 之外多了 `/minecraftservices/*` 一组路径。
 
-> 不开启时仍然可以认证登录，只是 1.19+ 客户端的聊天消息将没有数字签名。详细字段与轮换策略参考 [Profile Keys](./profile-keys)。
+> 不开启时仍然可以认证登录，只是 1.19+ 客户端的聊天消息将没有数字签名。详细字段与轮换策略参考 [Profile Keys](./profile-keys.md)。
 
 ### `username_check`
 

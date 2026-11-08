@@ -118,7 +118,7 @@ else:
     return new user
 ```
 
-`mbe` 字段默认 `0`，玩家需在 HRPAuth WebUI 主动调 `POST /user/mojang-bind-enable` 设为 `1` 才会允许同名 Mojang 玩家撞名 bind。详见 [HA-ROADMAP §3.4](../HA-ROADMAP.md#34-业务逻辑仅-mt-路径生效v02-按-mbe-分支) 与 [`POST /user/mojang-bind-enable`](../HA-ROADMAP.md#36-新增端点post-usermojang-bind-enablev02-新增)。
+`mbe` 字段默认 `0`，玩家需在 HRPAuth WebUI 主动调 `POST /user/mojang-bind-enable` 设为 `1` 才会允许同名 Mojang 玩家撞名 bind。详见 HA-ROADMAP §3.4 与 §3.6（新增端点 `POST /user/mojang-bind-enable`）；`../HA-ROADMAP.md` 已不在仓库中，死链于 2026-11-08 移除。
 
 ### What WinnerProxy does with the response
 

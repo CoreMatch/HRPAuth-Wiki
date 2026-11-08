@@ -27,16 +27,16 @@ HRPAuth 是一个基于 Go 和 Gin 的认证服务，面向两个不同但相互
 
 ## 推荐阅读顺序
 
-1. [快速开始](./quick-start)
-2. [架构概览](./architecture)
-3. [配置说明](./configuration)
-4. [Token 与鉴权体系](./token-system)
-5. [接口总览](./api-overview)
-6. [数据模型](./data-models)
-7. [功能开关](./feature-flags)
-8. [运行与运维](./operations)
-9. [微服务扩展](./microservices)
-10. [Profile Keys (聊天签名)](./profile-keys) — Minecraft 1.19+ 聊天签名特性实现细节
+1. [快速开始](./quick-start.md)
+2. [架构概览](./architecture.md)
+3. [配置说明](./configuration.md)
+4. [Token 与鉴权体系](./token-system.md)
+5. [接口总览](./api-overview.md)
+6. [数据模型](./data-models.md)
+7. [功能开关](./feature-flags.md)
+8. [运行与运维](./operations.md)
+9. [微服务扩展](./microservices.md)
+10. [Profile Keys (聊天签名)](./profile-keys.md) — Minecraft 1.19+ 聊天签名特性实现细节
 
 ## 核心认知
 
