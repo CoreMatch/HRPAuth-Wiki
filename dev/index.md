@@ -7,3 +7,4 @@
 - [RW-Mod-Injector](./rw-mod-injector.md)——注入链路、快照与 restore、zip 处理约束
   - [回归脚本](./rw-mod-injector-regression.md)——真客户端 + 真服务端的端到端回归
 - [HA-Services-Deployer](./ha-services-deployer.md)——deploy-manifest 契约、编排语义锚点
+- [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——编排面代理、可用性判定、会话模型

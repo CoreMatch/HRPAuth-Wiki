@@ -6,3 +6,4 @@
 - [Cascade](./cascade.md)——边缘反向代理（玩家唯一公网入口）
 - [RW-Mod-Injector](./rw-mod-injector.md)——玩家使用：安装、`/inj` 命令、失败提示、回退与卸载
 - [HA-Services-Deployer](./ha-services-deployer.md)——清单分发后端与部署编排器
+- [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——浏览器运维面板
