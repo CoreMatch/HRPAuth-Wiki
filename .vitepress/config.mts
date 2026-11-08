@@ -60,6 +60,9 @@ export default defineConfig({
             { text: 'RW-Mod-Injector（玩家使用）', link: '/deploy/rw-mod-injector' },
             { text: 'HA-Services-Deployer', link: '/deploy/ha-services-deployer' },
             { text: 'HA-Services-MaintenanceView', link: '/deploy/ha-services-maintenanceview' },
+            { text: 'HRPAuth', link: '/deploy/hrpauth' },
+            { text: 'HASkinProxy', link: '/deploy/haskinproxy' },
+            { text: 'WinnerProxy', link: '/deploy/winnerproxy' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
@@ -75,6 +78,9 @@ export default defineConfig({
             { text: 'RW-Mod-Injector 回归脚本', link: '/dev/rw-mod-injector-regression' },
             { text: 'HA-Services-Deployer', link: '/dev/ha-services-deployer' },
             { text: 'HA-Services-MaintenanceView', link: '/dev/ha-services-maintenanceview' },
+            { text: 'HRPAuth', link: '/dev/hrpauth' },
+            { text: 'HASkinProxy', link: '/dev/haskinproxy' },
+            { text: 'WinnerProxy', link: '/dev/winnerproxy' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }

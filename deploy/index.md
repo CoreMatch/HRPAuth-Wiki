@@ -7,3 +7,6 @@
 - [RW-Mod-Injector](./rw-mod-injector.md)——玩家使用：安装、`/inj` 命令、失败提示、回退与卸载
 - [HA-Services-Deployer](./ha-services-deployer.md)——清单分发后端与部署编排器
 - [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——浏览器运维面板
+- [HRPAuth](./hrpauth.md)——认证核心与 OAuth2 授权中心
+- [HASkinProxy](./haskinproxy.md)——Yggdrasil → CustomSkinLoader 兼容代理
+- [WinnerProxy](./winnerproxy.md)——Mojang 玩家保留 UUID 的加入代理

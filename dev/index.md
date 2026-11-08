@@ -8,3 +8,6 @@
   - [回归脚本](./rw-mod-injector-regression.md)——真客户端 + 真服务端的端到端回归
 - [HA-Services-Deployer](./ha-services-deployer.md)——deploy-manifest 契约、编排语义锚点
 - [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——编排面代理、可用性判定、会话模型
+- [HRPAuth](./hrpauth.md)——启动链、OAuth2 扩展点、配置迁移链
+- [HASkinProxy](./haskinproxy.md)——CSL 路由、缓存与上游集成
+- [WinnerProxy](./winnerproxy.md)——按账号来源的分发器设计
