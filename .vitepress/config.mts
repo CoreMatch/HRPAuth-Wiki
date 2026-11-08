@@ -65,6 +65,7 @@ export default defineConfig({
             { text: 'WinnerProxy', link: '/deploy/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/deploy/matchcorearena-server' },
             { text: 'MatchCoreArena-Client', link: '/deploy/matchcorearena-client' },
+            { text: 'BedwarsRel-MCA', link: '/deploy/bedwarsrel-mca' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
@@ -85,6 +86,7 @@ export default defineConfig({
             { text: 'WinnerProxy', link: '/dev/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/dev/matchcorearena-server' },
             { text: 'MatchCoreArena-Client', link: '/dev/matchcorearena-client' },
+            { text: 'BedwarsRel-MCA', link: '/dev/bedwarsrel-mca' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
