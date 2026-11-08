@@ -19,3 +19,4 @@
 - **WinnerProxy**——Mojang 玩家保留 UUID 的加入代理。
 - **MatchCoreArena-Server**——竞技平台匹配与结算核心：Go/Gin 独立 HTTP 服务，匹配排队成局、加权 Elo 结算、排行榜。
 - **MatchCoreArena-Client**——玩家桌面客户端（Wails）：登录、匹配排队、战绩与排行榜只读展示；当前无分发包，从源码构建。
+- **BedwarsRel-MCA**——BedwarsRel 的 fork（玩法全上游）：对局结束时把结果上报给 MatchCoreArena-Server 结算；仅支持 MC 1.8.x/1.12。

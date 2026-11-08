@@ -13,3 +13,4 @@
 - [WinnerProxy](./winnerproxy.md)——按账号来源的分发器设计
 - [MatchCoreArena-Server](./matchcorearena-server.md)——匹配队列与成局、加权 Elo 评分模型、上报契约、schema 迁移
 - [MatchCoreArena-Client](./matchcorearena-client.md)——Wails 绑定边界、只读不变量、INTEROP-SPEC v1 交接发送端
+- [BedwarsRel-MCA](./bedwarsrel-mca.md)——fork 边界、上报管线挂钩点、幂等键与死信重放
