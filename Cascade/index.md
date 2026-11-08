@@ -11,7 +11,7 @@ updatedAt: 2026-11-08
 
 # Cascade
 
-Cascade 是面向公网的代理：玩家只连接它一次，由它把玩家路由到后端、提供房间目录、处理跳服。各后端是 [Avalon](../Avalon/index.md) 单房间实例，其中一个被指定为零模组大厅（默认后端）。
+Cascade 是面向公网的代理：玩家只连接它一次，由它把玩家路由到后端、提供房间目录、处理跳服。各后端是 [Avalon](../Avalon/deployment.md) 单房间实例，其中一个被指定为零模组大厅（默认后端）。
 
 ## 路由：从大厅到子服
 
@@ -32,6 +32,6 @@ Cascade 要求连续两次探测成功才把后端判为健康，而房间快照
 
 ## 相关
 
-- [Avalon](../Avalon/index.md)：零模组大厅为什么行得通、大厅模式做什么
+- [Avalon](../Avalon/deployment.md)：零模组大厅为什么行得通、大厅模式做什么
 - [RW-Mod-Injector](../RW-Mod-Injector/index.md)：装配完成后经 `/goto` 进入模组房
 - Cascade 仓 `knowledge/`：代理设计记录，含跳转路由
