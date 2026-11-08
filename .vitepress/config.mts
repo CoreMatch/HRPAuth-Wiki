@@ -66,6 +66,9 @@ export default defineConfig({
             { text: 'MatchCoreArena-Server', link: '/deploy/matchcorearena-server' },
             { text: 'MatchCoreArena-Client', link: '/deploy/matchcorearena-client' },
             { text: 'BedwarsRel-MCA', link: '/deploy/bedwarsrel-mca' },
+            { text: 'HRPAuth-Yggdrasil-API', link: '/deploy/hrpauth-yggdrasil-api' },
+            { text: 'HASkinLib', link: '/deploy/haskinlib' },
+            { text: 'HA-WebUI-SDKHandler', link: '/deploy/ha-webui-sdkhandler' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }

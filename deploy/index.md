@@ -13,3 +13,6 @@
 - [MatchCoreArena-Server](./matchcorearena-server.md)——竞技平台匹配与结算核心（Go/Gin 独立服务）
 - [MatchCoreArena-Client](./matchcorearena-client.md)——玩家桌面客户端（无分发包，源码构建路径）
 - [BedwarsRel-MCA](./bedwarsrel-mca.md)——游戏侧上报插件：安装、match-reporting 配置、上报验证
+- [HRPAuth-Yggdrasil-API](./hrpauth-yggdrasil-api.md)——Yggdrasil 兼容认证服务（authlib-injector 可直连）
+- [HASkinLib](./haskinlib.md)——皮肤库服务（纹理上传/预览/拉取）
+- [HA-WebUI-SDKHandler](./ha-webui-sdkhandler.md)——WebUI 聚合构建服务（内部回环）
