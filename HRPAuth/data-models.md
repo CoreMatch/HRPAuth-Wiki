@@ -58,7 +58,7 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 
 这个字段直接影响代注册用户清理任务。
 
-**运维代认领翻转**：通过 `POST /admin/claim-user`（Service Token + `user.claim.as-service` scope）给一个代注册用户指派真实邮箱和密码后，`cbh` 会被翻转成 `1`，避免被 30 天清理任务误删。该端点按 `username` 定位目标用户，仅对 `cbh=0` 的账号生效。详见 [接口总览](./api-overview)。
+**运维代认领翻转**：通过 `POST /admin/claim-user`（Service Token + `user.claim.as-service` scope）给一个代注册用户指派真实邮箱和密码后，`cbh` 会被翻转成 `1`，避免被 30 天清理任务误删。该端点按 `username` 定位目标用户，仅对 `cbh=0` 的账号生效。详见 [接口总览](./api-overview.md)。
 
 **强制绑定转移**：通过 `POST /admin/force-bind`（Service Token + Manage Token）可以将代注册账号的 `mojang_uuid` 转移到玩家的手动注册账号，并删除代注册账号。适用于同时拥有代注册账号和手动注册账号的玩家。
 
@@ -180,7 +180,7 @@ HRPAuth 当前围绕两组核心模型工作：站内 OAuth2 相关表，以及 
 - `public_key_signature`（Yggdrasil 私钥对公钥的 SHA1withRSA 签名）
 - `expires_at`、`refreshed_after`（默认 48h 有效，颁发 40h 后允许轮换）
 
-完整生命周期参考 [Profile Keys](./profile-keys)。
+完整生命周期参考 [Profile Keys](./profile-keys.md)。
 
 ## 关系理解
 

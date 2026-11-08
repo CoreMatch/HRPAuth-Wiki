@@ -142,11 +142,11 @@ Redis 主要用于：
 - `max_texture_width`（默认 1024）：纹理宽度上限（px），超出时作为 notice/warning 返回，不拒绝上传
 - `max_texture_height`（默认 1024）：纹理高度上限（px），超出时作为 notice/warning 返回，不拒绝上传
 - `max_texture_file_size`（默认 512000）：纹理文件大小上限（bytes），超出时拒绝上传
-- `max_tokens_per_user`（默认 10）：单个用户最多持有的有效 `accessToken` 数量，达到上限后按 `issued_at` 升序吊销最旧的，详见 [Token 与鉴权体系](./token-system)。
+- `max_tokens_per_user`（默认 10）：单个用户最多持有的有效 `accessToken` 数量，达到上限后按 `issued_at` 升序吊销最旧的，详见 [Token 与鉴权体系](./token-system.md)。
 
 ### `yggdrasil.feature_flags`
 
-这里放的是协议兼容和行为开关，详见 [功能开关](./feature-flags)。
+这里放的是协议兼容和行为开关，详见 [功能开关](./feature-flags.md)。
 
 ## 默认生成配置时的几个事实
 

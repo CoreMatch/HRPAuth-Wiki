@@ -77,7 +77,7 @@ updatedAt: 2026-08-15
    └─────────────┘
 ```
 
-> 注：`users` 表主键 `uid`（非自增），`profiles` 表主键 `id`（UUID）。详见 [HA-ROADMAP §2.3](../HA-ROADMAP.md#23-索引)。
+> 注：`users` 表主键 `uid`（非自增），`profiles` 表主键 `id`（UUID）。详见 HA-ROADMAP §2.3（`../HA-ROADMAP.md` 已不在仓库中，死链于 2026-11-08 移除）。
 
 Minecraft 服务端**永远看到的是 HRPAuth `profiles.id`**（一个 UUID），看不到 Mojang UUID。
 
@@ -202,7 +202,7 @@ Minecraft 服务端**永远看到的是 HRPAuth `profiles.id`**（一个 UUID）
    └─────────────┘
 ```
 
-> Note: `users` PK is `uid` (not auto-increment); `profiles` PK is `id` (UUID). See [HA-ROADMAP §2.3](../HA-ROADMAP.md#23-索引).
+> Note: `users` PK is `uid` (not auto-increment); `profiles` PK is `id` (UUID). See HA-ROADMAP §2.3 (`../HA-ROADMAP.md` no longer exists in this repository; dead link removed 2026-11-08).
 
 The Minecraft server **always sees the HRPAuth `profiles.id`** (a UUID), never the Mojang UUID.
 

@@ -145,7 +145,7 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 | `POST` | `/minecraftservices/player/certificates` | `Authorization: Bearer <accessToken>` | 颁发或返回当前用户的聊天签名密钥对 |
 | `GET` | `/minecraftservices/publickeys` | 无 | 获取验证服务器的签名公钥（Mojang 信封格式） |
 
-> Profile Key 的密钥对是 RSA 2048，持久化在 `profile_keys` 表中，有效期 48 小时。详细规范参见 [Profile Keys](./profile-keys)。
+> Profile Key 的密钥对是 RSA 2048，持久化在 `profile_keys` 表中，有效期 48 小时。详细规范参见 [Profile Keys](./profile-keys.md)。
 
 ---
 
@@ -161,4 +161,4 @@ HRPAuth 的接口可以分成两大类：站内业务接口和 Yggdrasil 接口�
 记住站内 OAuth2 Access Token 与 Yggdrasil Access Token 是两套系统，不可混用。
 
 ### 4. Token 数量上限
-`yggdrasil.security.max_tokens_per_user`（默认 10，现位于 HRPAuth-Yggdrasil-API 的配置中）约束单个用户最多持有的有效 `accessToken` 数量。详见 [Token 与鉴权体系](./token-system)。
+`yggdrasil.security.max_tokens_per_user`（默认 10，现位于 HRPAuth-Yggdrasil-API 的配置中）约束单个用户最多持有的有效 `accessToken` 数量。详见 [Token 与鉴权体系](./token-system.md)。
