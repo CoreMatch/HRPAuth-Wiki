@@ -17,3 +17,4 @@
 - **HRPAuth**——认证服务（OAuth2 与 Yggdrasil 兼容接口）。
 - **HASkinProxy**——皮肤兼容性代理（Yggdrasil → CustomSkinLoader）。
 - **WinnerProxy**——Mojang 玩家保留 UUID 的加入代理。
+- **MatchCoreArena-Server**——竞技平台匹配与结算核心：Go/Gin 独立 HTTP 服务，匹配排队成局、加权 Elo 结算、排行榜。

@@ -11,3 +11,4 @@
 - [HRPAuth](./hrpauth.md)——启动链、OAuth2 扩展点、配置迁移链
 - [HASkinProxy](./haskinproxy.md)——CSL 路由、缓存与上游集成
 - [WinnerProxy](./winnerproxy.md)——按账号来源的分发器设计
+- [MatchCoreArena-Server](./matchcorearena-server.md)——匹配队列与成局、加权 Elo 评分模型、上报契约、schema 迁移

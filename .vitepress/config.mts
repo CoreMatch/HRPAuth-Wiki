@@ -63,6 +63,7 @@ export default defineConfig({
             { text: 'HRPAuth', link: '/deploy/hrpauth' },
             { text: 'HASkinProxy', link: '/deploy/haskinproxy' },
             { text: 'WinnerProxy', link: '/deploy/winnerproxy' },
+            { text: 'MatchCoreArena-Server', link: '/deploy/matchcorearena-server' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
@@ -81,6 +82,7 @@ export default defineConfig({
             { text: 'HRPAuth', link: '/dev/hrpauth' },
             { text: 'HASkinProxy', link: '/dev/haskinproxy' },
             { text: 'WinnerProxy', link: '/dev/winnerproxy' },
+            { text: 'MatchCoreArena-Server', link: '/dev/matchcorearena-server' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
