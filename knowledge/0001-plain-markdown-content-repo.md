@@ -1,7 +1,7 @@
 # 0001. Keep the wiki a hand-maintained, plain-Markdown content repository
 
 ## Status
-Accepted
+Superseded by [0006](./0006-rendering-layer-over-markdown.md) (2026-11-08). Original text below, unchanged.
 
 ## Context
 HRPAuth-Wiki exists as a dedicated documentation repository for the HRPAuth ecosystem. Documentation could either be generated into a site (VitePress/mkdocs/Docusaurus style) or kept as plain files. The repository holds a one-line README, an AGPL-3.0 LICENSE, and all documentation as plain Markdown files. Pages carry YAML frontmatter (`title`, `description`, `order`, `tags`, `updatedAt`), but nothing in this repository consumes it.

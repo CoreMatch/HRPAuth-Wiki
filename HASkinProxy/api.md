@@ -1,6 +1,6 @@
 ---
 title: HASkinProxy API Reference
-description: HTTP endpoints exposed by HASkinProxy: CSL profile/texture proxy plus texture-management passthrough.
+description: "HTTP endpoints exposed by HASkinProxy: CSL profile/texture proxy plus texture-management passthrough."
 order: 1
 updatedAt: 2026-09-04
 ---

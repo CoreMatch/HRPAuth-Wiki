@@ -1,4 +1,4 @@
-name: Publish wiki content to GitHub Pages
+name: Publish wiki to GitHub Pages
 
 on:
   push:
@@ -15,22 +15,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # VitePress lastUpdated needs the full git history
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: .vitepress/package-lock.json
+
+      - name: Install dependencies
+        working-directory: .vitepress
+        run: npm ci
+
+      # Rendering layer over the plain Markdown at the repository root
+      # (knowledge/0006): the build reads srcDir '..' and writes
+      # .vitepress/dist. The Markdown files are the only content source.
+      - name: Build site
+        working-directory: .vitepress
+        run: npm run build
+
+      - name: Verify build output
+        run: test -f .vitepress/dist/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: .vitepress/dist
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      # This repository is plain Markdown with no site generator
-      # (knowledge/0001): the content is published as-is.
-      - name: Upload content
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: .
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

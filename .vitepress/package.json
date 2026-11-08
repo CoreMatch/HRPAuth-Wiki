@@ -1,0 +1,13 @@
+{
+  "name": "hrpauth-wiki-site",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "vitepress build ..",
+    "dev": "vitepress dev ..",
+    "preview": "vitepress preview .."
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
