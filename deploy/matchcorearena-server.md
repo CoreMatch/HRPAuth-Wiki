@@ -83,7 +83,7 @@ tokens:
 
 ## 配置项表
 
-配置为 YAML，启动时读取，**改动一律重启生效**。顶层 `version` 必须与代码支持版本一致（当前 `1.9.0`）；低版本沿内置迁移链自动升级（内存中执行，不回写文件），高版本直接拒绝启动。
+配置为 YAML，启动时读取，**改动一律重启生效**。顶层 `version` 必须 ≤ 代码支持版本（当前 `1.11.0`）；低版本沿内置迁移链自动升级（内存中执行，不回写文件），高版本直接拒绝启动。
 
 ### server
 
@@ -137,7 +137,10 @@ tokens:
 | `rating_window_growth_per_minute` | `100` | 窗口随等待时长的放宽速率/分钟（不得为负） |
 | `max_rating_window` | `1000` | 分差窗口上限（必须为正） |
 | `modes` | `1v1 [1,1]`、`2v2 [2,2]` | 可排队模式与各队人数；match_type 不得为空或重复，team_sizes 必须全为正 |
-| `join_target.host` | `""` | 成局后下发给客户端的游戏服地址；留空 = 未配置，成局响应不携带，客户端回落本地配置 |
+| `assignment_ttl_seconds` | `1800` | 成局分配有效期（秒，1.10.0+）：`GET /api/matchmaking/assignment/:uuid` 只认 formed_at 距今未超该值的成局（必须为正） |
+| `room_reservation_ttl_seconds` | `900` | 房间预占 TTL（秒，1.11.0+）：成局时对预占房间的保留时长（必须为正） |
+| `servers` | 不配置 | 子服→房间静态清单（1.11.0+，可选）：**整体不配置 = 不启用房间层**，保持 1.9.x 行为；显式空清单会被拒绝。启用时每个子服 `name`/`host`/`port` 必填、不得重名，每个子服至少一个房间，房间 `name` 必填、`capacity` 为正 |
+| `join_target.host` | `""` | 全局游戏服地址（无房间层时成局记录携带它）；留空 = 未配置，成局响应不携带，客户端回落本地配置。**接入 Velocity 代理（VelocityGate）时**：代理按成局记录的 `join_target` 路由——启用房间层则携带绑定子服地址（来自 `servers`），未启用则携带本字段；代理侧 `servers[].target` 必须与成局实际携带的地址逐字一致 |
 | `join_target.port` | `0` | 配置了 host 时端口必须 1–65535 |
 
 ### ranking
@@ -160,7 +163,8 @@ tokens:
 |---|---|
 | 公开（无鉴权） | `GET /api/status`（健康 + 版本）；`POST /api/auth/login-ticket`、`POST /api/auth/totp-verify`、`POST /api/auth/refresh` |
 | 任意有效令牌（玩家 Bearer / 服务令牌 / 运维令牌） | `GET /api/users/me`、`GET /api/users/:uid`、`GET /api/users/:uid/matches`、`POST /api/users/me/experience`、好友与战队全部端点、`POST /api/matchmaking/join`、`DELETE /api/matchmaking/leave`、`GET /api/matchmaking/status`、`GET /api/matches/:id`、`GET /api/matches/me`、排行榜三端点、`POST /api/auth/logout` |
-| 仅 OPS 级凭据（运维令牌 / tokens.yaml 服务令牌） | `POST /api/matches`（另需 `match:report` scope）、`GET /api/matches`、`GET /api/matches/by-game-id/:game_id`、`GET /api/matches/rejections`、`GET /api/metrics` |
+| 仅 OPS 级凭据（运维令牌 / tokens.yaml 服务令牌） | `POST /api/matches`（另需 `match:report` scope）、`GET /api/matches`、`GET /api/matches/by-game-id/:game_id`、`GET /api/matches/rejections`、`GET /api/metrics`、`GET /api/matchmaking/assignment/:uuid`（玩家令牌一律 403；响应只含路由所需最小信息，不回显成员名单与评分——消费方是 Velocity 代理一类的可信基础设施） |
+| 仅 `maintenance` scope（运维令牌 / super-admin 服务令牌） | `POST /api/maintenance/sql`（直接执行 SQL 的维护通道，body `{"sql": "..."}`） |
 
 令牌经 `Authorization: Bearer <token>` 传递（`?access_token=` 查询参数仅留给无法设 header 的场景）。玩家令牌校验结果在 Redis 缓存 5 分钟；`maintenance` scope 视为拥有所有权限。
 
@@ -187,7 +191,8 @@ tokens:
 # 健康 + 版本（公开端点）
 curl -s http://127.0.0.1:9178/api/status
 # 期望 200：
-# {"success":true,"message":"MatchCoreArena Server 运行中","data":{"version":"1.9.0"},"meta":{"request_id":"..."}}
+# {"success":true,"message":"MatchCoreArena Server 运行中","data":{"version":"1.11.0"},"meta":{"request_id":"..."}}
+# （version = 装载迁移后的配置版本，恒等于代码 config.CurrentVersion）
 ```
 
 ```sh

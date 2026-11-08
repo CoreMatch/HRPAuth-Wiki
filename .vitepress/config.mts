@@ -64,6 +64,7 @@ export default defineConfig({
             { text: 'HASkinProxy', link: '/deploy/haskinproxy' },
             { text: 'WinnerProxy', link: '/deploy/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/deploy/matchcorearena-server' },
+            { text: 'MatchCoreArena-VelocityGate', link: '/deploy/matchcorearena-velocitygate' },
             { text: 'MatchCoreArena-Client', link: '/deploy/matchcorearena-client' },
             { text: 'BedwarsRel-MCA', link: '/deploy/bedwarsrel-mca' },
             { text: 'HRPAuth-Yggdrasil-API', link: '/deploy/hrpauth-yggdrasil-api' },

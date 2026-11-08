@@ -44,7 +44,7 @@ go build -o HRPAuth      # 或 ./build.sh（= go build -o ./build/HRPAuth）
 
 ## 配置项表
 
-配置在 `config.yaml`，首启自动生成默认值；改动**重启生效**。配置带 `version` 字段，启动时按版本链迁移（`config/migrations.go`）：缺 version 字段直接报错；版本新于代码时告警且不改文件。部署模板当前为 `version: "15"`（清单 `template_version` 记为 "14"，存在漂移，以模板为准）。
+配置在 `config.yaml`，首启自动生成默认值；改动**重启生效**。配置带 `version` 字段，启动时按版本链迁移（`config/migrations.go`）：缺 version 字段直接报错；版本新于代码时告警且不改文件。代码 `config.ConfigVersion` 与部署模板均为 `version: "15"`（v14→v15 为 ygg base_url 修正迁移；清单 `template_version` 已同步，无漂移）。
 
 | 段.键 | 默认/示例 | 作用 |
 |---|---|---|
