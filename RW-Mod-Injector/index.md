@@ -91,5 +91,5 @@ SHA-256 是唯一判定标准。已安装文件逐个计算哈希与清单比对
 
 - [回归脚本](./regression.md)：端到端测试，覆盖整条链路与失败路径
 - [Avalon](../Avalon/deployment.md)：装配从哪里开始（零模组大厅）
-- [Cascade](../Cascade/index.md)：装配完成后的跳转路由
+- [Cascade](../Cascade/deployment.md)：装配完成后的跳转路由
 - RW-Mod-Injector 仓 `knowledge/0001-injector-design.md` 与 `knowledge/0002-failure-messaging.md`：设计决策与完整失败文案表

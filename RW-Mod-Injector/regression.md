@@ -41,4 +41,4 @@ bash scripts/regress-e2e.sh
 ## 相关
 
 - [RW-Mod-Injector](./index.md)：本脚本演练的装配链路
-- [Avalon](../Avalon/deployment.md) 与 [Cascade](../Cascade/index.md)：脚本搭建的拓扑
+- [Avalon](../Avalon/deployment.md) 与 [Cascade](../Cascade/deployment.md)：脚本搭建的拓扑

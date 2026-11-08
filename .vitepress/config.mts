@@ -66,7 +66,8 @@ export default defineConfig({
         {
           text: 'Cascade',
           items: [
-            { text: '文档', link: '/Cascade/' }
+            { text: '部署者', link: '/Cascade/deployment' },
+            { text: '开发者', link: '/Cascade/development' }
           ]
         },
         {
