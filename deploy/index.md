@@ -11,3 +11,4 @@
 - [HASkinProxy](./haskinproxy.md)——Yggdrasil → CustomSkinLoader 兼容代理
 - [WinnerProxy](./winnerproxy.md)——Mojang 玩家保留 UUID 的加入代理
 - [MatchCoreArena-Server](./matchcorearena-server.md)——竞技平台匹配与结算核心（Go/Gin 独立服务）
+- [MatchCoreArena-Client](./matchcorearena-client.md)——玩家桌面客户端（无分发包，源码构建路径）
