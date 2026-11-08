@@ -35,6 +35,13 @@ jobs:
         working-directory: .vitepress
         run: npm ci
 
+      # Rollup resolves imports upward from each content file; the content
+      # lives at the repository root while node_modules lives in
+      # .vitepress/, so expose it at the root for resolution (the symlink
+      # is not part of the uploaded artifact).
+      - name: Expose dependencies to content root
+        run: ln -s .vitepress/node_modules node_modules
+
       # Rendering layer over the plain Markdown at the repository root
       # (knowledge/0006): the build reads srcDir '..' and writes
       # .vitepress/dist. The Markdown files are the only content source.
