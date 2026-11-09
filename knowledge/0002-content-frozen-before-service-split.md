@@ -18,4 +18,4 @@ Freeze the wiki content at 2026-10-01. Pages are not rewritten to follow the cod
 ## Evidence
 - HRPAuth/index.md (field: 本 Wiki 内容冻结于) — "本 Wiki 内容冻结于 2026-10 拆分前后，涉及 Yggdrasil 的页面已补充归属标注" (freeze statement in the content itself).
 - HRPAuth/configuration.md (field: 不再属于核心配置) — the configuration page states that the `yggdrasil` and `keygen` blocks no longer belong to the core config, and that its remaining sections describe the pre-split structure.
-- /home/lnb/Desktop/HA/HRPAuth-Yggdrasil-API — the standalone Yggdrasil service exists as a sibling repository, and the HRPAuth core's Go sources contain no Yggdrasil protocol routes (`authserver/authenticate` absent).
+- /home/lnb/Desktop/HA/hrpauth/HRPAuth-Yggdrasil-API — the standalone Yggdrasil service exists as a sibling repository, and the HRPAuth core's Go sources contain no Yggdrasil protocol routes (`authserver/authenticate` absent).
