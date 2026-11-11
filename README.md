@@ -19,6 +19,7 @@
 - **WinnerProxy**——Mojang 玩家保留 UUID 的加入代理。
 - **MatchCoreArena-Server**——竞技平台匹配与结算核心：Go/Gin 独立 HTTP 服务，匹配排队成局、加权 Elo 结算、排行榜。
 - **MatchCoreArena-Client**——玩家桌面客户端（Wails）：登录、匹配排队、战绩与排行榜只读展示；当前无分发包，从源码构建。
+- **MatchCoreArena-VelocityGate**——Velocity 代理插件：把已成局的玩家路由进对应游戏服；装进 Velocity 进程，非独立进程。
 - **BedwarsRel-MCA**——BedwarsRel 的 fork（玩法全上游）：对局结束时把结果上报给 MatchCoreArena-Server 结算；仅支持 MC 1.8.x/1.12。
 - **HRPAuth-Yggdrasil-API**——Yggdrasil 兼容 Minecraft 认证服务：对游戏客户端提供标准协议面，对接 HRPAuth 核心。
 - **HASkinLib**——皮肤库服务：纹理上传、预览图生成、按哈希拉取。

@@ -89,8 +89,12 @@ export default defineConfig({
             { text: 'HASkinProxy', link: '/dev/haskinproxy' },
             { text: 'WinnerProxy', link: '/dev/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/dev/matchcorearena-server' },
+            { text: 'MatchCoreArena-VelocityGate', link: '/dev/matchcorearena-velocitygate' },
             { text: 'MatchCoreArena-Client', link: '/dev/matchcorearena-client' },
             { text: 'BedwarsRel-MCA', link: '/dev/bedwarsrel-mca' },
+            { text: 'HRPAuth-Yggdrasil-API', link: '/dev/hrpauth-yggdrasil-api' },
+            { text: 'HASkinLib', link: '/dev/haskinlib' },
+            { text: 'HA-WebUI-SDKHandler', link: '/dev/ha-webui-sdkhandler' },
             { text: '↩ 重选身份', link: '/' }
           ]
         }
