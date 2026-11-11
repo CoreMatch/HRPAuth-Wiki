@@ -16,7 +16,7 @@ Add a VitePress rendering layer under these boundaries:
 - **Single language: Chinese.** No duplicated en/zh layers are introduced.
 - **Default VitePress theme only, no theme plugins.** The built artifact is self-contained (local search index, system font stack, no runtime CDN dependency), so core reading works offline.
 - **Tooling lives in `.vitepress/`** (`config.mts`, `package.json`, `package-lock.json`) so the repository root keeps its existing layout.
-- **The homepage is the rendered `README.md`** (VitePress home layout frontmatter plus the existing body): one-line ecosystem positioning, per-project navigation, and reading paths for players, operators, and plugin authors.
+- **The homepage is the rendered `README.md`**: one-line positioning, identity choice (部署者/开发者), and a plain project list; the identity-track layout is recorded in [0008](./0008-identity-tracks-deploy-and-dev.md).
 - Pages publishing stays on GitHub Pages via the existing `pages.yml`, changed from "upload raw files" to "install dependencies, build, upload the built artifact, deploy", keeping the `push main` and `workflow_dispatch` triggers and the `pages` concurrency group.
 - Raw `.md` files remain in the repository for machine/AI consumption and diff-based review; the rendered site is a projection, not a new source. If the site build breaks, the content is still fully available as files.
 
@@ -31,5 +31,5 @@ Add a VitePress rendering layer under these boundaries:
 
 - `.vitepress/config.mts` (fields: `srcDir`, `srcExclude`, `lang: 'zh-CN'`, sidebar/nav) and `.vitepress/package.json` (field: `scripts.build` = `vitepress build ..`).
 - `.github/workflows/pages.yml` (jobs: build → `npm ci`, `npm run build`, verify `.vitepress/dist/index.html`, upload-pages-artifact, deploy-pages).
-- README.md (frontmatter: `layout: home`, hero, three reader features) — body otherwise unchanged.
+- README.md — entry page: identity choice plus plain project list (see 0008).
 - knowledge/0001-plain-markdown-content-repo.md (field: ## Status) — marked superseded, original text intact.
