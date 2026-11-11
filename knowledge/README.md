@@ -12,6 +12,7 @@ This knowledge base is a memo the project writes to itself. It is self-hosted an
 | [0004](./0004-ha-contract-defines-external-behavior.md) | External behavior is defined by HA-Contract, not by this wiki | Accepted | This wiki records internal decisions; on any conflict with HA-Contract, fix the wiki side. |
 | [0005](./0005-samuelwiki-retired-venue-restored.md) | SamuelWiki retired; this wiki is the documentation venue again | Accepted | The author retired SamuelWiki; current-state pages for the game stack return to this repository as new per-project directories, frozen pages stay frozen. |
 | [0006](./0006-rendering-layer-over-markdown.md) | Render the wiki with VitePress; Markdown stays the single content source | Accepted | Supersedes 0001: the same Markdown files are rendered into a Chinese single-language site (default theme, no runtime CDN); raw files stay the only source. |
+| [0007](./0007-samuelwiki-detached-scaffold-removed.md) | SamuelWiki fully detached from HA; remaining scaffold removed | Accepted | The author confirms SamuelWiki is unrelated to HA; the docs/ scaffold and the docs/** srcExclude are removed; wiki.mcnb.dev serves this site. |
 
 ## Maintenance
 

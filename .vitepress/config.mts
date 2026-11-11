@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // 渲染层配置（决策见 knowledge/0006-rendering-layer-over-markdown.md）。
 // Markdown 是唯一内容源：srcDir 就是仓库根目录，站点从同一批 .md 构建，
-// 不存在第二份内容副本。docs/ 是未提交的脚手架 WIP，显式排除。
+// 不存在第二份内容副本。
 export default defineConfig({
   lang: 'zh-CN',
   title: 'HRPAuth-Wiki',
@@ -10,7 +10,7 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   srcDir: '.',
-  srcExclude: ['docs/**', 'node_modules/**', '.github/**', 'build/**'],
+  srcExclude: ['node_modules/**', '.github/**', 'build/**'],
   // README.md 是唯一内容源的入口页，映射为站点根路径与 knowledge 目录
   // 路由（不新建副本）。
   rewrites: {
