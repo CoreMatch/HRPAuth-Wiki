@@ -5,7 +5,7 @@ order: 1
 tags:
   - deployer
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HA-Services-Deployer — 部署
@@ -47,7 +47,13 @@ orchestration:
 
 ### 平台镜像（已发布）
 
-容器编排的 10 个镜像已真实发布到 Docker Hub 命名空间 `limeight/ha-*`（真实 build → push → 删本地 → 回拉 → 挂回 compose 平台全量冒烟）。命名规则：`limeight/ha-<服务名>`；tag = `<版本>-<短SHA>`（无版本号的用纯短 SHA，均可回追 commit），并列 `latest`；**生效引用一律钉 digest**（各仓 `deploy-manifest.yaml` 的 `container.image.digest`）。当前仅 `linux/amd64`（目标机架构未确认有 arm64 需求；多架构需构建机装 qemu）。
+容器编排的 10 个镜像已真实发布到 Docker Hub 命名空间 `limeight/ha-*`（真实 build → push → 删本地 → 回拉 → 挂回 compose 平台全量冒烟）。命名规则：`limeight/ha-<服务名>`；tag = `<版本>-<短SHA>`（无版本号的用纯短 SHA，均可回追 commit），并列 `latest`；**生效引用一律钉 digest**（各仓 `deploy-manifest.yaml` 的 `container.image.digest`）。
+
+**多架构**：10 个镜像均为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list），同一引用在不同架构机器上自动解析到对应平台的镜像。清单钉的是 **manifest list 的 digest**，不是单平台子镜像的 digest——钉到子 digest 会让另一种架构的机器拉到错误平台的镜像。构建事实：
+
+- arm64 腿在 amd64 构建机上经 QEMU 用户态模拟构建（`docker-container` driver 的 buildx builder），单镜像耗时约为原生构建的 5–15 倍，属预期，不因此降级为单平台。
+- 个别镜像在模拟下可能构建失败（模拟开销、工具链兼容等），失败逐个排查，不静默跳过、不偷偷回退单平台。已知一例与模拟无关的坑：依赖补丁把 `go.mod` 提到更高 Go 版本后，Dockerfile 钉的旧 `GO_VERSION` 基础镜像会在 `go mod download` 报 `go.mod requires go >= …`（官方 golang 镜像 `GOTOOLCHAIN=local` 不自动升级工具链），构建时以 `--build-arg GO_VERSION=<go.mod 要求值>` 覆盖即可，无需改 Dockerfile。
+- 可复现参数：`--provenance=false --sbom=false` + `SOURCE_DATE_EPOCH=0`。
 
 | 镜像 | 对应仓 |
 |---|---|
