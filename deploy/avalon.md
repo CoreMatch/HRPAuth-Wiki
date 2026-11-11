@@ -198,16 +198,16 @@ backends:
 **启动**：
 
 - 独立形态：`./start.sh` 或 `./avalon`。命令行参数：`-noPrint`（不打印交互输出）、`-Dkey=value`（覆盖配置项，前缀如 `avalonhelper.config.core.port=5123`，命令行优先于同名环境变量）、`-Davalonhelper.basePath=<数据根>`。
-- 编排形态：进程归 Tinyvisor，部署经 HA-Services-Deployer 触发（`POST /api/v1/deploy/run`），不要手搓进程。
+- 编排形态：进程归 Tinyvisor，部署经 HA-Cupbearer 触发（`POST /api/v1/deploy/run`），不要手搓进程。
 
 **停止**：控制台 `exit` 或 SIGTERM。SIGTERM 是优雅退出：与控制台 `exit` 同一条链，送终 helper 耗时十几秒；**不要 SIGKILL**（退出路径含配置保存）。上一次没退完就起下一次会因残留进程占端口失败；紧急时第二次 SIGTERM 强退。
 
 **升级**：
 
 - 独立形态：停服 → 用新包覆盖 `avalon` 与 `avalon-helper.jar` → **保留整个 `data/`** → 重启。只升 Go 二进制或只升 helper jar 均可（两者经 stdin/stdout 线协议解耦），但线协议版本必须两侧一致。
-- 编排形态：Deployer 部署新版本（`releases/<版本>` + `current` 软链原子切换 + 重启 + 健康探测）；`data/` 在共享数据目录，升级不触碰。
+- 编排形态：Cupbearer 部署新版本（`releases/<版本>` + `current` 软链原子切换 + 重启 + 健康探测）；`data/` 在共享数据目录，升级不触碰。
 
-**回滚**：编排形态用 Deployer 回滚（`POST /api/v1/deploy/rollback`，`current` 切回上一版本目录并重启）。独立形态：保留旧包与 `data/`，手动换回。
+**回滚**：编排形态用 Cupbearer 回滚（`POST /api/v1/deploy/rollback`，`current` 切回上一版本目录并重启）。独立形态：保留旧包与 `data/`，手动换回。
 
 ## 验证
 

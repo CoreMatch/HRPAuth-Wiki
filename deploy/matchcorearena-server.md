@@ -21,7 +21,7 @@ MatchCoreArena-Server（MCA-Server）是竞技平台的匹配与结算核心：�
 | MySQL | 必需，唯一事实源（启动硬依赖：连接或 Ping 失败即退出）。字符集 utf8mb4 / InnoDB；最低版本仓库未声明 |
 | Redis | 必需，仅作缓存（启动硬依赖：连接失败即退出）。最低版本仓库未声明 |
 | HRPAuth | 必需，唯一出站运行时依赖：启动期校验可达；玩家令牌校验、参与者 UUID→uid 解析都走它 |
-| 进程监督 | 生产声明为 `manager: aapanel`（面板管理，Deployer 编排器对其只读） |
+| 进程监督 | 生产声明为 `manager: aapanel`（面板管理，Cupbearer 编排器对其只读） |
 
 数据库与库名按配置准备（默认库名 `matchcorearena`）；**表结构不用手工建**——启动时版本化迁移自动执行（咨询锁串行化，幂等可重入）。
 
@@ -57,13 +57,13 @@ cd /www/wwwroot/mca      # 生产在位目录（deploy-manifest install.root）
 
 启动顺序（任一硬依赖失败即退出）：加载并迁移配置 → 执行数据库迁移 → Ping MySQL → 连 Redis → 校验 HRPAuth 可达 → 加载 `tokens.yaml` → 注册路由 → 启动匹配引擎 → 监听 `:9178`。
 
-生产形态按 `deploy-manifest.yaml`：二进制在位 `/www/wwwroot/mca/mca`，进程归 aapanel 管理，配置在位 `/www/wwwroot/mca/config/config.yaml`。不要用 Deployer 编排器去动它（`manager: aapanel` 的项目一律 foreign 只读）。
+生产形态按 `deploy-manifest.yaml`：二进制在位 `/www/wwwroot/mca/mca`，进程归 aapanel 管理，配置在位 `/www/wwwroot/mca/config/config.yaml`。不要用 Cupbearer 编排器去动它（`manager: aapanel` 的项目一律 foreign 只读）。
 
 ### 容器形态（镜像已发布，当前生产为裸金属）
 
 镜像已发布到 Docker Hub：`limeight/ha-mca-server`（`linux/amd64` + `linux/arm64` 多架构，tag `1.11.0-699d7bf` 并列 `latest`，生效引用钉 manifest list digest `sha256:4b45285991bdcc7a1ff1f76d744575be62531afdc1ba2736beeafb023893b99c`）。仓内多阶段 Dockerfile（builder `golang:1.26.4-alpine` → 运行 `alpine:3.22`，`EXPOSE 9178`，非 root 用户），`docker-entrypoint.sh` 支持用 `CONFIG_TEMPLATE` + `RENDERED_CONFIG` 环境变量经 envsubst 渲染配置。
 
-当前生产部署形态是裸金属（清单 `runtime` 默认 `baremetal`）；容器运行时可用——经清单 `runtime: container` 或部署上下文覆盖（`orchestration.overrides`）切换，由 HA-Services-Deployer 编排。注意容器形态必须**独占数据库**（与其他服务共库会因 `schema_migrations` 簿记表互踩）。
+当前生产部署形态是裸金属（清单 `runtime` 默认 `baremetal`）；容器运行时可用——经清单 `runtime: container` 或部署上下文覆盖（`orchestration.overrides`）切换，由 HA-Cupbearer 编排。注意容器形态必须**独占数据库**（与其他服务共库会因 `schema_migrations` 簿记表互踩）。
 
 ## 服务凭据（tokens.yaml）
 

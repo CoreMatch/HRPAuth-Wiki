@@ -1,6 +1,6 @@
 ---
 title: Grail 部署者文档
-description: Grail 产物分发上游的运行前提、Root 与下游节点从零启动、发布与同步、Deployer 接入、撤销与宽限期操作、故障对照。
+description: Grail 产物分发上游的运行前提、Root 与下游节点从零启动、发布与同步、Cupbearer 接入、撤销与宽限期操作、故障对照。
 order: 1
 tags:
   - grail
@@ -16,7 +16,7 @@ HA 生态的产物分发上游：**原站（Root）+ 分级镜像**的混合形�
 
 三层事实，部署前先读准：
 
-1. **Grail 只管产物的发布与分发**：渠道、版本、血缘、签名、撤销、宽限期。它不构建（CI 把产物交给它）、不拉进程（那是 Tinyvisor）、不编排部署（那是 Deployer）。
+1. **Grail 只管产物的发布与分发**：渠道、版本、血缘、签名、撤销、宽限期。它不构建（CI 把产物交给它）、不拉进程（那是 Tinyvisor）、不编排部署（那是 Cupbearer）。
 2. **对外只有一个取件 URL**：`GET /{project}/{channel}/{version}/{platform}`。节点托管字节时直接给字节，否则 302 到实际供货方；消费方不需要知道字节在哪一层。
 3. **签名从第一天存在**：每项目一把独立密钥，根密钥签密钥环。镜像不重签，下游只验原站签名。信任锚（根公钥）带外分发，钉在消费方本地。
 
@@ -28,7 +28,7 @@ HA 生态的产物分发上游：**原站（Root）+ 分级镜像**的混合形�
 |---|---|
 | 运行时 | 静态链接 Go 二进制或 `grail:local` 镜像；无数据库、无 Redis |
 | 存储 | 数据目录（blob 内容寻址 + 元数据），磁盘容量按产物总量预留 |
-| 网络 | 下游节点可访问上级节点；消费方（Deployer 等）可访问取件节点 |
+| 网络 | 下游节点可访问上级节点；消费方（Cupbearer 等）可访问取件节点 |
 | 凭据 | 凭据文件 0600，绝不进仓库；根公钥经安全渠道分发给消费方 |
 
 ## 从零起一个 Root（原站）
@@ -44,7 +44,7 @@ grail init --config root.yaml --credentials root-credentials.json \
 #     {"name": "ci-bot",  "token": "...", "channels": ["ci"]},
 #     {"name": "author",  "token": "...", "channels": ["candidate", "release"]}
 #   ],
-#   "read_tokens": [{"name": "deployer-x", "token": "...", "channels": ["ci","candidate","release"]}]
+#   "read_tokens": [{"name": "cupbearer-x", "token": "...", "channels": ["ci","candidate","release"]}]
 
 # 3. 启动
 grail server --config root.yaml --credentials root-credentials.json
@@ -134,7 +134,7 @@ grail server --config mirror.yaml --credentials mirror-credentials.json   # 常�
 
 同步语义：**只拉不推**。每次同步先拉密钥环与撤销/宽限状态（验签、拒绝序号回退），再拉新版本清单（按项目密钥验签），然后**优先把字节抓下来落盘**；抓不动/超限才退回"只记地址"（该节点对规范 URL 回 302 到上级），并在同步输出中显式列出未落盘项。
 
-## Deployer 接入
+## Cupbearer 接入
 
 `deploy-manifest.yaml`（baremetal 段）：
 
@@ -149,7 +149,7 @@ grail server --config mirror.yaml --credentials mirror-credentials.json   # 常�
       platform: linux-amd64    # 可省，缺省即此值
 ```
 
-Deployer 凭据文件追加两项：
+Cupbearer 凭据文件追加两项：
 
 ```json
 {
@@ -193,6 +193,6 @@ grail admin node rm --base-url ... --admin-token ... --id mirror-bj
 | 发布报 `resolves to an internal address` | 外部 URL 指向内网被 SSRF 守卫拒绝；换公网地址或改为上传字节 |
 | 下游同步报密钥环验签失败 | 本地信任锚与上游根密钥不一致（上游换过根密钥需重新带外分发） |
 | 下游同步报 `registered node identity required` | 节点未登记/已吊销，或节点签名时间窗（±300s）超限 |
-| Deployer 预检报 `grail source requires grail_root_public_key` | 凭据文件缺信任锚 |
-| Deployer 报版本 yanked | 上游撤销了该版本；确认原因后 unyank 或改用其他版本 |
+| Cupbearer 预检报 `grail source requires grail_root_public_key` | 凭据文件缺信任锚 |
+| Cupbearer 报版本 yanked | 上游撤销了该版本；确认原因后 unyank 或改用其他版本 |
 | 取件 302 到了意外地址 | 该层节点未持有字节；查同步输出的未落盘项（抓取失败/超限） |

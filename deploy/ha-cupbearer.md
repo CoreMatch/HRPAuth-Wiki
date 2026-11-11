@@ -1,14 +1,14 @@
 ---
-title: HA-Services-Deployer 部署者文档
-description: Deployer 的运行前提、从零部署、配置项表、端口暴露、启停升级、部署验证与故障对照。
+title: HA-Cupbearer 部署者文档
+description: Cupbearer 的运行前提、从零部署、配置项表、端口暴露、启停升级、部署验证与故障对照。
 order: 1
 tags:
-  - deployer
+  - cupbearer
   - deployment
 updatedAt: 2026-11-11
 ---
 
-# HA-Services-Deployer — 部署
+# HA-Cupbearer — 部署
 
 版本清单与产物分发后端，可选启用为部署编排器。纯本地文件服务：无数据库、无 Redis。
 
@@ -71,7 +71,7 @@ orchestration:
 
 ### 裸金属路径（主路径）
 
-Deployer 的设计意图就是这条路径：不借助容器编排微服务。执行链：产物暂存（sha256 校验）→ `releases/<版本>/` + `current` 软链原子切换 → 经 Tinyvisor 重启 → 健康探测（`facts.health`）→ 冒烟断言（`facts.smoke`，声明了才跑）；失败自动回滚。进程的日常监督归 Tinyvisor。
+Cupbearer 的设计意图就是这条路径：不借助容器编排微服务。执行链：产物暂存（sha256 校验）→ `releases/<版本>/` + `current` 软链原子切换 → 经 Tinyvisor 重启 → 健康探测（`facts.health`）→ 冒烟断言（`facts.smoke`，声明了才跑）；失败自动回滚。进程的日常监督归 Tinyvisor。
 
 **前置条件**：
 
@@ -125,7 +125,7 @@ curl -s http://127.0.0.1:2770/api/v1/deploy/runs
 | `limeight/ha-winnerproxy` | WinnerProxy |
 | `limeight/ha-mca-server` | MatchCoreArena-Server |
 | `limeight/ha-webui-sdkhandler` | HA-WebUI-SDKHandler |
-| `limeight/ha-services-deployer` | HA-Services-Deployer |
+| `limeight/ha-cupbearer` | HA-Cupbearer |
 | `limeight/ha-services-maintenance-view` | HA-Services-MaintenanceView |
 | `limeight/ha-bs2ha` | BS2HA（一次性迁移工具，不在编排内） |
 
@@ -134,16 +134,16 @@ curl -s http://127.0.0.1:2770/api/v1/deploy/runs
 **怎么一键触发**——两种形态：
 
 1. **编排器容器运行时**（消费上述已发布镜像）：清单声明 `runtime: container`（或配置 `orchestration.overrides.<项目>.runtime: container`，不动清单），随后与裸金属同一条命令触发——`POST /api/v1/deploy/run`（或面板按钮）。编排器按清单 `container.image`（`source: registry`）真实拉取镜像、创建并启动容器、打健康探测与冒烟断言。
-2. **平台 Compose 模板**（整平台一条命令）：模板在 HA-Services-Deployer 仓 `deploy/`，含各服务配置模板与 `.env.example`：
+2. **平台 Compose 模板**（整平台一条命令）：模板在 HA-Cupbearer 仓 `deploy/`，含各服务配置模板与 `.env.example`：
 
 ```sh
-git clone https://github.com/CoreMatch/HA-Services-Deployer.git
-cd HA-Services-Deployer/deploy
+git clone https://github.com/CoreMatch/HA-Cupbearer.git
+cd HA-Cupbearer/deploy
 cp .env.example .env   # 填数据库/Redis 地址、OAuth 客户端、密钥、上游 URL
 docker compose up -d --build
 ```
 
-**触发之后归谁管**——容器的日常监督由 docker 的重启策略（`restart: unless-stopped`）负责，不经 Tinyvisor，Deployer 也不常驻看管容器生命周期。但 Deployer 的容器级管理能力是已实现的可选能力，在部署运行与回滚中生效：
+**触发之后归谁管**——容器的日常监督由 docker 的重启策略（`restart: unless-stopped`）负责，不经 Tinyvisor，Cupbearer 也不常驻看管容器生命周期。但 Cupbearer 的容器级管理能力是已实现的可选能力，在部署运行与回滚中生效：
 
 - **按 digest 拉取**：声明了 `digest` 就按 `repo@sha256:...` 拉（拉取即钉死内容）；仅声明 `tag` 时退回按 tag 拉（不推荐，tag 可被重打移动）。拉后对照镜像实际 registry 摘要，与清单声明不一致**响亮失败**、绝不建容器。
 - **容器健康探测与冒烟**：打在容器发布的宿主端口上，语义与裸金属一致；冒烟失败 = 部署失败，走自动回滚。
@@ -196,9 +196,9 @@ curl -s http://127.0.0.1:<端口>/health   # 按各服务部署页的健康端�
 | 端口 | 来源 | 暴露 |
 |---|---|---|
 | `:2770` | 代码默认（`internal/models/config.go::DefaultConfig`） | 仅回环（`deploy-manifest.yaml` 声明 `exposure: loopback`） |
-| `:18080` | 部署模板（`deploy/config/ha-services-deployer.yaml.tmpl`） | 仅回环 |
+| `:18080` | 部署模板（`deploy/config/ha-cupbearer.yaml.tmpl`） | 仅回环 |
 
-两处定义不一致：任选其一，并与 HA-Services-MaintenanceView 的 `deployer.base_url` 保持一致。
+两处定义不一致：任选其一，并与 HA-Services-MaintenanceView 的 `cupbearer.base_url` 保持一致。
 
 ## 启动 / 停止 / 升级 / 回滚
 

@@ -82,7 +82,7 @@ go test ./...                       # 提交前必须全绿，需要时追加 -r
 
 ## 数据形态
 
-- 数据根目录默认 = 可执行文件所在目录；`-Davalonhelper.basePath=<路径>` 或环境变量 `avalonhelper.basePath` 覆盖。编排形态由 Deployer 经启动脚本注入共享数据目录（`deploy-manifest.yaml` 的 `baremetal.install.shared_data`），版本升级不重置配置/地图/模组。
+- 数据根目录默认 = 可执行文件所在目录；`-Davalonhelper.basePath=<路径>` 或环境变量 `avalonhelper.basePath` 覆盖。编排形态由 Cupbearer 经启动脚本注入共享数据目录（`deploy-manifest.yaml` 的 `baremetal.install.shared_data`），版本升级不重置配置/地图/模组。
 - `data/` 内容：`Config.json`、`ConfigServer.json`、`RelayConfig.json`、`Plugins.json`、`Settings.bin`、`CascadeJti.bin`（jti 一次性消费持久化）、`logs/`、`replays/`、`plugins/outbox/`（deliver 档 WAL）、`maps/`（自定义地图登记源）、`mods/`（房间模组集权威来源）、`gameData/`（引擎必需）。
 - 配置为 JSON、无版本字段；缺失键首启补默认值并落盘。
 

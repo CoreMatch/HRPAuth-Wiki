@@ -1,14 +1,14 @@
 ---
-title: HA-Services-Deployer 开发者文档
-description: Deployer 的代码结构、构建与测试、扩展点与契约（deploy-manifest、凭据扫描、回滚语义）、数据形态与兼容规则。
+title: HA-Cupbearer 开发者文档
+description: Cupbearer 的代码结构、构建与测试、扩展点与契约（deploy-manifest、凭据扫描、回滚语义）、数据形态与兼容规则。
 order: 2
 tags:
-  - deployer
+  - cupbearer
   - development
 updatedAt: 2026-11-11
 ---
 
-# HA-Services-Deployer — 开发
+# HA-Cupbearer — 开发
 
 ## 代码结构
 
@@ -42,7 +42,7 @@ go vet ./...
 go test ./...          # 提交前全绿，需要时追加 -race
 ```
 
-本地真机验证（真实 Deployer + 真实 Tinyvisor + 面板，全部回环、不碰生产）：按 `README.md` 的 "Local alignment environment" 一节搭建；核对口径是面板计数、API 返回与 `state_dir/runs/*.json` 三方一致。
+本地真机验证（真实 Cupbearer + 真实 Tinyvisor + 面板，全部回环、不碰生产）：按 `README.md` 的 "Local alignment environment" 一节搭建；核对口径是面板计数、API 返回与 `state_dir/runs/*.json` 三方一致。
 
 ## 扩展点与契约
 
@@ -78,7 +78,7 @@ go test ./...          # 提交前全绿，需要时追加 -race
 
 ## 平台镜像：构建与发布
 
-平台 10 个服务镜像已发布到 Docker Hub 命名空间 `limeight/ha-*`（HRPAuth、HRPAuth-Yggdrasil-API、HASkinLib、HASkinProxy、WinnerProxy、MatchCoreArena-Server、HA-WebUI-SDKHandler、HA-Services-Deployer、HA-Services-MaintenanceView、BS2HA），全部为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list）。tag 约定 `<版本>-<短SHA>`（无版本号的用纯短 SHA，可回追 commit），并列 `latest`；**生效引用是清单 `container.image.digest` 钉住的摘要，tag 只是可读别名**。
+平台 10 个服务镜像已发布到 Docker Hub 命名空间 `limeight/ha-*`（HRPAuth、HRPAuth-Yggdrasil-API、HASkinLib、HASkinProxy、WinnerProxy、MatchCoreArena-Server、HA-WebUI-SDKHandler、HA-Cupbearer、HA-Services-MaintenanceView、BS2HA），全部为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list）。tag 约定 `<版本>-<短SHA>`（无版本号的用纯短 SHA，可回追 commit），并列 `latest`；**生效引用是清单 `container.image.digest` 钉住的摘要，tag 只是可读别名**。
 
 ### 构建方式
 

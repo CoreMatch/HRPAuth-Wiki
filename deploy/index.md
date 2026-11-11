@@ -5,7 +5,7 @@
 - [Avalon](./avalon.md)——游戏服务端（独立分发包形态与 Cascade 后端形态）
 - [Cascade](./cascade.md)——边缘反向代理（玩家唯一公网入口）
 - [RW-Mod-Injector](./rw-mod-injector.md)——玩家使用：安装、`/inj` 命令、失败提示、回退与卸载
-- [HA-Services-Deployer](./ha-services-deployer.md)——清单分发后端与部署编排器：裸金属编排是主线，容器路径一键触发，另有已实现的容器级管理能力
+- [HA-Cupbearer](./ha-cupbearer.md)——清单分发后端与部署编排器：裸金属编排是主线，容器路径一键触发，另有已实现的容器级管理能力
 - [Grail](./grail.md)——产物分发上游（原站 + 分级镜像）：三渠道签名发布、规范取件 URL、只拉式同步、撤销与宽限期
 - [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——浏览器运维面板
 - [HRPAuth](./hrpauth.md)——认证核心与 OAuth2 授权中心

@@ -115,7 +115,7 @@ cp config.example.yaml config.yaml
 
 ## 启动 / 停止 / 升级 / 回滚
 
-- 编排形态：进程归 Tinyvisor，部署/回滚经 HA-Services-Deployer（`POST /api/v1/deploy/run` / `/rollback`）。清单预定安装根 `/www/wwwroot/casc`、二进制 `cascade`；清单注明生产尚未部署，首次实际部署以现场为准。
+- 编排形态：进程归 Tinyvisor，部署/回滚经 HA-Cupbearer（`POST /api/v1/deploy/run` / `/rollback`）。清单预定安装根 `/www/wwwroot/casc`、二进制 `cascade`；清单注明生产尚未部署，首次实际部署以现场为准。
 - 独立运行：`./build/cascade`（读工作目录的 `config.yaml`）；停止 = SIGTERM。
 - 升级：替换二进制即可，迁移随启动自动执行。数据库 schema 的回滚语义仓库未声明——回退旧二进制前先确认 schema 兼容性。
 

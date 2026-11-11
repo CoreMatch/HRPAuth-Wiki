@@ -17,7 +17,7 @@ main.go                              入口：装配配置、部署器客户端�
 internal/
   config/                            配置加载、保存、版本迁移
   models/                            Config、项目设置与远端项目模型
-  deployer/client.go                 Deployer HTTP 客户端（10s 超时，解开信封 data；
+  cupbearer/client.go                 Cupbearer HTTP 客户端（10s 超时，解开信封 data；
                                      withAuth 时注入 X-Deploy-Token，未配置令牌拒绝发送）
   state/store.go                     本地 projects.json 读写
   server/
@@ -46,12 +46,12 @@ npm run build                        # 产物 frontend/dist
 npm run dev                          # Vite 开发服务器 :5173，代理 /api 与 /healthz
 ```
 
-本地真机对齐环境（真实 Deployer + 真实 Tinyvisor，全部回环、不碰生产）：按 `README.md` 的 "Local alignment environment" 一节搭建；验证口径是面板计数、`/api/orchestration/*` 返回与 Deployer 磁盘 `runs/*.json` 三方一致，dry-run 必须产生带 `dry-run:` 计划行的真实运行记录。
+本地真机对齐环境（真实 Cupbearer + 真实 Tinyvisor，全部回环、不碰生产）：按 `README.md` 的 "Local alignment environment" 一节搭建；验证口径是面板计数、`/api/orchestration/*` 返回与 Cupbearer 磁盘 `runs/*.json` 三方一致，dry-run 必须产生带 `dry-run:` 计划行的真实运行记录。
 
 ## 编排面代理与可用性判定
 
-- 编排结构原样遵循 Deployer 的编排契约：`/api/orchestration/*` 一一映射 Deployer `/api/v1/deploy/*`（manifest / validation / status / runs / deploy / rollback）。
-- 变更请求经服务端转发并注入 `X-Deploy-Token`（`internal/deployer/client.go`）；未配置令牌时拒绝发送，路由返回 503。
+- 编排结构原样遵循 Cupbearer 的编排契约：`/api/orchestration/*` 一一映射 Cupbearer `/api/v1/deploy/*`（manifest / validation / status / runs / deploy / rollback）。
+- 变更请求经服务端转发并注入 `X-Deploy-Token`（`internal/cupbearer/client.go`）；未配置令牌时拒绝发送，路由返回 503。
 - 部署按钮可用性纯由清单声明决定（`frontend/src/api.ts::isDeployable`）：`manager: tinyvisor` 且 `kind` 非 `external`；面板管理、人工管理与 external 条目只读展示。无清单声明 = 编排区为空，浏览器端无兜底清单。
 - 编排操作先经 manager 闸门再转发（`internal/server/handlers_orchestration.go`）。
 
@@ -71,8 +71,8 @@ npm run dev                          # Vite 开发服务器 :5173，代理 /api 
 - `GET /api/session` · `POST /api/session/login` · `POST /api/session/logout`
 - `GET /api/config`（脱敏）
 - `GET /api/projects` · `PUT /api/projects/:name/deployment` · `POST /api/projects/:name/precheck` · `POST /api/projects/:name/initialize`
-- `GET /api/deployer/healthz` · `GET /api/deployer/manifest` · `GET /api/request-log`
+- `GET /api/cupbearer/healthz` · `GET /api/cupbearer/manifest` · `GET /api/request-log`
 - `GET /api/orchestration/manifest` · `validation` · `status` · `runs` · `runs/:id`
 - `POST /api/orchestration/deploy` · `POST /api/orchestration/rollback`
 
-会话中间件之后的路由在配置 `deployer.token` 时要求有效会话。
+会话中间件之后的路由在配置 `cupbearer.token` 时要求有效会话。
