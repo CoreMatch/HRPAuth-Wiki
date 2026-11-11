@@ -72,10 +72,12 @@ go build -o build/hasp .   # 构建命令仓库未单独声明，产物路径按
 curl -s http://127.0.0.1:2702/health
 # 期望：200
 
-curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:2702/ha_smoke_probe_zz9999
-# 期望：404，响应体含 "user not found"（编排器冒烟同款：查无此人是正常 miss）
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:2702/ha_smoke_probe_zz9999.json
+# 期望：404，响应体含 "user not found"（编排器冒烟同款：查无此人是正常 miss）。
+# 注意 CSL profile 路由是 /{username}.json：不带 .json 后缀只会得到裸 404 空体，
+# 不会真正走上游查询。
 
-curl -s http://127.0.0.1:2702/<玩家名>
+curl -s http://127.0.0.1:2702/<玩家名>.json
 # CSL profile 查询；纹理走 /textures/{hash}
 ```
 

@@ -45,6 +45,25 @@ orchestration:
 - 启用成功标志：启动日志 `orchestration enabled: scan_roots=... tinyvisor=...`。
 - 本服务自身由面板管理（`deploy-manifest.yaml` 声明 `manager: aapanel`），编排器对自身只读；清单预定安装根 `/www/wwwroot/hasd`、二进制 `hasd`。清单注明本服务尚未在生产部署，首次实际部署以现场为准。
 
+### 平台镜像（已发布）
+
+容器编排的 10 个镜像已真实发布到 Docker Hub 命名空间 `limeight/ha-*`（真实 build → push → 删本地 → 回拉 → 挂回 compose 平台全量冒烟）。命名规则：`limeight/ha-<服务名>`；tag = `<版本>-<短SHA>`（无版本号的用纯短 SHA，均可回追 commit），并列 `latest`；**生效引用一律钉 digest**（各仓 `deploy-manifest.yaml` 的 `container.image.digest`）。当前仅 `linux/amd64`（目标机架构未确认有 arm64 需求；多架构需构建机装 qemu）。
+
+| 镜像 | 对应仓 |
+|---|---|
+| `limeight/ha-hrpauth` | HRPAuth |
+| `limeight/ha-hrpauth-yggdrasil-api` | HRPAuth-Yggdrasil-API |
+| `limeight/ha-haskinlib` | HASkinLib |
+| `limeight/ha-haskinproxy` | HASkinProxy |
+| `limeight/ha-winnerproxy` | WinnerProxy |
+| `limeight/ha-mca-server` | MatchCoreArena-Server |
+| `limeight/ha-webui-sdkhandler` | HA-WebUI-SDKHandler |
+| `limeight/ha-services-deployer` | HA-Services-Deployer |
+| `limeight/ha-services-maintenance-view` | HA-Services-MaintenanceView |
+| `limeight/ha-bs2ha` | BS2HA（一次性迁移工具，不在编排内） |
+
+注意：Deployer 运行时的 `registry` 镜像源**鉴权拉取本阶段未实现**（schema 与校验已就绪，清单里的 digest 引用是部署声明）；`ha-webui-nginx` 用库存镜像 `nginx:1.27-alpine`，不自建。
+
 ### 清单 kind 三种形态
 
 - `service`：有自己进程与端口的服务——声明端口、健康端点、依赖、裸金属/容器执行段，是部署流水线的完整对象。
