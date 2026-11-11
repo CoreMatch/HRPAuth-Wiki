@@ -5,7 +5,7 @@ order: 1
 tags:
   - winnerproxy
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # WinnerProxy — 部署
@@ -32,7 +32,7 @@ go build -o build/winnerproxy .   # 构建命令仓库未单独声明，产物�
 ./build/winnerproxy
 ```
 
-容器：仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`。
+容器：镜像已发布到 Docker Hub——`limeight/ha-winnerproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `0.2.0-de34ed2` 并列 `latest`，生效引用钉 manifest list digest `sha256:51795ffad54b8bb90e36470ae857f0414c26eb64185e7562aa999eecbda0b7bc`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`，本地构建也可行，部署引用以已发布镜像为准。
 
 ## 配置项表
 

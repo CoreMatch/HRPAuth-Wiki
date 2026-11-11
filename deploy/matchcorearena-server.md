@@ -5,7 +5,7 @@ order: 1
 tags:
   - matchcorearena
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # MatchCoreArena-Server — 部署
@@ -59,9 +59,11 @@ cd /www/wwwroot/mca      # 生产在位目录（deploy-manifest install.root）
 
 生产形态按 `deploy-manifest.yaml`：二进制在位 `/www/wwwroot/mca/mca`，进程归 aapanel 管理，配置在位 `/www/wwwroot/mca/config/config.yaml`。不要用 Deployer 编排器去动它（`manager: aapanel` 的项目一律 foreign 只读）。
 
-### 容器形态（仓库提供、当前未启用）
+### 容器形态（镜像已发布，当前生产为裸金属）
 
-仓内有多阶段 Dockerfile（builder `golang:1.26.4-alpine` → 运行 `alpine:3.22`，`EXPOSE 9178`，非 root 用户），`docker-entrypoint.sh` 支持用 `CONFIG_TEMPLATE` + `RENDERED_CONFIG` 环境变量经 envsubst 渲染配置。但 `deploy-manifest.yaml` 声明 `container.enabled: false`，当前部署形态是裸金属。
+镜像已发布到 Docker Hub：`limeight/ha-mca-server`（`linux/amd64` + `linux/arm64` 多架构，tag `1.11.0-699d7bf` 并列 `latest`，生效引用钉 manifest list digest `sha256:4b45285991bdcc7a1ff1f76d744575be62531afdc1ba2736beeafb023893b99c`）。仓内多阶段 Dockerfile（builder `golang:1.26.4-alpine` → 运行 `alpine:3.22`，`EXPOSE 9178`，非 root 用户），`docker-entrypoint.sh` 支持用 `CONFIG_TEMPLATE` + `RENDERED_CONFIG` 环境变量经 envsubst 渲染配置。
+
+当前生产部署形态是裸金属（清单 `runtime` 默认 `baremetal`）；容器运行时可用——经清单 `runtime: container` 或部署上下文覆盖（`orchestration.overrides`）切换，由 HA-Services-Deployer 编排。注意容器形态必须**独占数据库**（与其他服务共库会因 `schema_migrations` 簿记表互踩）。
 
 ## 服务凭据（tokens.yaml）
 

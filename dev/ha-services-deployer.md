@@ -5,7 +5,7 @@ order: 2
 tags:
   - deployer
   - development
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HA-Services-Deployer — 开发
@@ -51,7 +51,7 @@ go test ./...          # 提交前全绿，需要时追加 -race
 - 结构权威：`internal/manifest/manifest.go::Manifest`（`SchemaVersion = 1`）。
 - 双层模型：`facts`（运行时无关：端口、健康、冒烟、依赖、数据目录、配置）+ `baremetal` / `container`（运行时执行方式）；顶层 `runtime` 选择器二选一（默认 `baremetal`），其他值校验即拒。
 - 裸金属：`process.manager`（tinyvisor / aapanel / manual）、`install.root` + `releases/` + `current` 软链、`install.shared_data`（版本目录外的共享数据目录）、`artifact.source`（`local_path` 启用 / `ci_release` 已实现未启用）。
-- 容器：`image.source`（build / local_image / registry）、`volumes`（宿主相对路径映射）。
+- 容器：`image.source`（build / local_image / registry）、`volumes`（宿主相对路径映射）。`registry` 源在部署时真实拉取：声明了 `image.digest` 时按 `repo@sha256:...` 拉（digest 优先，拉取即钉死内容），拉后对照镜像实际 registry 摘要，不符即响亮失败、不建容器（`internal/orchestrator/container.go::registryPullRef` / `::containsRepoDigest`）；鉴权沿用宿主 docker 登录态，编排器不持有 registry 凭据。
 - 清单校验报告携带 `DuplicateGroup`，由调用方按 `strict_project_names` 决定警告或拒绝（`internal/manifest/manifest.go`）。
 
 ### 凭据扫描
@@ -75,6 +75,28 @@ go test ./...          # 提交前全绿，需要时追加 -race
 - 下发面（只读、不鉴权）：`/healthz`、`/api/v1/manifest`、`/api/v1/projects`、`/api/v1/artifacts/:service/*filepath`（路径经 `filepath.Clean` + `..` 前缀检查）。
 - 编排面：只读 `/api/v1/deploy/{manifests,validate,status,preflight,runs}` 不鉴权；变更 `POST /api/v1/deploy/{run,rollback}` 经 `deployAuth`。
 - 响应信封 `{success, message, data}`。
+
+## 平台镜像：构建与发布
+
+平台 10 个服务镜像已发布到 Docker Hub 命名空间 `limeight/ha-*`（HRPAuth、HRPAuth-Yggdrasil-API、HASkinLib、HASkinProxy、WinnerProxy、MatchCoreArena-Server、HA-WebUI-SDKHandler、HA-Services-Deployer、HA-Services-MaintenanceView、BS2HA），全部为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list）。tag 约定 `<版本>-<短SHA>`（无版本号的用纯短 SHA，可回追 commit），并列 `latest`；**生效引用是清单 `container.image.digest` 钉住的摘要，tag 只是可读别名**。
+
+### 构建方式
+
+- 工具：buildx，`docker-container` driver 的 builder；`--platform linux/amd64,linux/arm64 --push` 一次构建双平台并直推。
+- 可复现参数：`--provenance=false --sbom=false` + `SOURCE_DATE_EPOCH=0`。同输入连续两次构建摘要一致；非确定性来源是 BuildKit 默认的 provenance/attestation 清单（携带构建时间戳），上述参数即关掉它。仍不可复现的边界只有输入本身变了（基础镜像标签被上游重推、上下文内容变化）。
+- 构建上下文用 `git archive` 干净导出仓库 HEAD，避免脏工作区的未提交内容漏进镜像。
+
+### 多架构 = QEMU 模拟构建（慢，个别会失败）
+
+- arm64 腿在 amd64 构建机上经 **QEMU 用户态模拟**构建：单镜像墙钟约 4–7 分钟（原生 amd64 腿 1–2 分钟），约为原生的 5–15 倍，属预期，**不因此降级为单平台**。
+- 个别构建在模拟下可能失败（模拟开销、工具链在模拟环境的兼容问题等）：失败逐个排查，不静默跳过、不偷偷回退单平台。
+- 已知一例与模拟无关的坑：依赖漏洞补丁把多个仓的 `go.mod` 提到更高 Go 版本（如 `go 1.26.10`）后，Dockerfile 钉的旧 `GO_VERSION` 基础镜像会在 `go mod download` 报 `go.mod requires go >= …`（官方 golang 镜像 `GOTOOLCHAIN=local`，不自动升级工具链）。修法是构建时 `--build-arg GO_VERSION=<go.mod 要求值>`，零仓库改动（Dockerfile 的 `ARG GO_VERSION` 本就设计为可覆盖）。
+
+### 清单里 digest 的形状：钉 manifest list 摘要
+
+- `container.image.digest` 钉的是 **manifest list（OCI index）的摘要**，不是单平台子镜像的摘要。子摘要只解析到一个固定平台；钉 list 摘要才能让不同架构的机器从同一个引用解析到各自平台的镜像。
+- 对账规则不受多架构影响：`docker pull repo@sha256:<list 摘要>` 落库一条镜像记录，其 `RepoDigests` 恰含该 list 摘要（平台变体挂在这条记录下），因此拉后对照（`containsRepoDigest`）原样通过。
+- 发布验证口径：本地删干净 → 按 list 摘要回拉 → 挂回平台 compose 全量冒烟（双架构各一轮：逐容器健康 + `uname -m` + 端点抽查）。
 
 ## 数据形态
 

@@ -10,7 +10,17 @@ updatedAt: 2026-11-11
 
 # HA-Services-Deployer — 部署
 
-版本清单与产物分发后端；可选启用为裸金属/容器部署编排器（前置检查、版本切换、经 Tinyvisor 重启、健康与冒烟、回滚）。纯本地文件服务：无数据库、无 Redis。
+版本清单与产物分发后端，可选启用为部署编排器。纯本地文件服务：无数据库、无 Redis。
+
+## 角色定位
+
+三层事实，部署前先读准：
+
+1. **设计意图是在不使用容器的情况下编排微服务。** 裸金属编排是本体与主线：产物暂存 → 版本目录 + `current` 软链原子切换 → 经 Tinyvisor 重启 → 健康探测与冒烟 → 回滚。
+2. **容器路径的默认交互是一键触发**：一次部署运行（`POST /api/v1/deploy/run`，或运维面板的部署按钮）把声明为容器运行的项目整套编排起来；平台 Compose 模板（本仓 `deploy/`）则提供整平台一条命令的触发方式。触发之后，容器的日常监督由 docker 自身的重启策略（`--restart unless-stopped`）负责，不经 Tinyvisor。
+3. **同时具备已实现的容器级管理能力**，属可选能力、保留可用：按 digest 优先拉取镜像、对容器做健康探测与冒烟断言、按镜像 digest 钉死回滚、孤儿容器对账（默认只报不删）。
+
+两条部署路径的前置条件、命令与验证见下文[两条部署路径](#两条部署路径)。
 
 ## 运行前提
 
@@ -45,15 +55,66 @@ orchestration:
 - 启用成功标志：启动日志 `orchestration enabled: scan_roots=... tinyvisor=...`。
 - 本服务自身由面板管理（`deploy-manifest.yaml` 声明 `manager: aapanel`），编排器对自身只读；清单预定安装根 `/www/wwwroot/hasd`、二进制 `hasd`。清单注明本服务尚未在生产部署，首次实际部署以现场为准。
 
-### 平台镜像（已发布）
+### 清单 kind 三种形态
 
-容器编排的 10 个镜像已真实发布到 Docker Hub 命名空间 `limeight/ha-*`（真实 build → push → 删本地 → 回拉 → 挂回 compose 平台全量冒烟）。命名规则：`limeight/ha-<服务名>`；tag = `<版本>-<短SHA>`（无版本号的用纯短 SHA，均可回追 commit），并列 `latest`；**生效引用一律钉 digest**（各仓 `deploy-manifest.yaml` 的 `container.image.digest`）。
+- `service`：有自己进程与端口的服务——声明端口、健康端点、依赖、裸金属/容器执行段，是部署流水线的完整对象。
+- `external`：不在编排内的外部依赖（如面板装的 MySQL/Redis）——只做可达性检查。
+- `plugin`：插件型产物（装进别人进程的 jar 一类，如 VelocityGate、BedwarsRel-MCA）——声明安装目标运行时（`plugin.runtime`，目标在编排体系内时可加 `target_project`）、`plugin.plugins_dir` 与产物；没有自身进程，故不声明端口与健康端点。编排器对插件条目**只登记与校验、不执行安装**（阶段未设），运行记录中结果为 `plugin`，回滚被明确拒绝。缺 `plugin` 段或其必填字段时聚合校验响亮失败。
 
-**多架构**：10 个镜像均为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list），同一引用在不同架构机器上自动解析到对应平台的镜像。清单钉的是 **manifest list 的 digest**，不是单平台子镜像的 digest——钉到子 digest 会让另一种架构的机器拉到错误平台的镜像。构建事实：
+### local_path 产物纪律
 
-- arm64 腿在 amd64 构建机上经 QEMU 用户态模拟构建（`docker-container` driver 的 buildx builder），单镜像耗时约为原生构建的 5–15 倍，属预期，不因此降级为单平台。
-- 个别镜像在模拟下可能构建失败（模拟开销、工具链兼容等），失败逐个排查，不静默跳过、不偷偷回退单平台。已知一例与模拟无关的坑：依赖补丁把 `go.mod` 提到更高 Go 版本后，Dockerfile 钉的旧 `GO_VERSION` 基础镜像会在 `go mod download` 报 `go.mod requires go >= …`（官方 golang 镜像 `GOTOOLCHAIN=local` 不自动升级工具链），构建时以 `--build-arg GO_VERSION=<go.mod 要求值>` 覆盖即可，无需改 Dockerfile。
-- 可复现参数：`--provenance=false --sbom=false` + `SOURCE_DATE_EPOCH=0`。
+清单声明 `baremetal.artifact.source: local_path` 的项目（当前全部），部署流水线硬要求**产物文件 + 同目录同名 `.sha256` 旁路**两件齐备，且旁路声明的校验和必须与产物内容一致——临时文件落盘、整体校验、原子改名，残缺或掉包产物进不了版本目录。preflight（deploy 模式）对这三点逐一检查，缺任一即阻断并点名路径。因此**构建脚本产出二进制时必须同时产出 `.sha256`**（`sha256sum <binary> | awk '{print $1}' > <binary>.sha256`）；只交二进制不交旁路的构建产物无法进入编排部署。
+
+## 两条部署路径
+
+编排启用后，按项目的 `runtime` 声明（清单顶层字段，默认 `baremetal`；配置 `orchestration.overrides.<项目>.runtime` 可按部署上下文覆盖）分两条路径执行。两条路径共用同一套触发端点与运行记录，区别在执行方式。
+
+### 裸金属路径（主路径）
+
+Deployer 的设计意图就是这条路径：不借助容器编排微服务。执行链：产物暂存（sha256 校验）→ `releases/<版本>/` + `current` 软链原子切换 → 经 Tinyvisor 重启 → 健康探测（`facts.health`）→ 冒烟断言（`facts.smoke`，声明了才跑）；失败自动回滚。进程的日常监督归 Tinyvisor。
+
+**前置条件**：
+
+- 目标机有 Tinyvisor（配置 `orchestration.tinyvisor.url`，凭据文件含 `tinyvisor_api_key`）。
+- 每个待部署项目的产物文件 + 同名 `.sha256` 旁路在位（见上文 local_path 产物纪律）。
+- 凭据文件（`credentials_path`，0600）配好 `deploy_token`（变更端点鉴权，fail-closed）。
+
+**命令**：
+
+```sh
+# 1. 预检：一次查全，分级报告（阻断项/警告项，每条带路径或端口）
+curl -s "http://127.0.0.1:2770/api/v1/deploy/preflight"
+
+# 2. 干跑：出计划不落变更
+curl -s -X POST http://127.0.0.1:2770/api/v1/deploy/run \
+  -H "X-Deploy-Token: <token>" -H "Content-Type: application/json" \
+  -d '{"dry_run": true}'
+
+# 3. 正式部署（一键）：按依赖拓扑序逐项目执行，失败隔离、断点续跑
+curl -s -X POST http://127.0.0.1:2770/api/v1/deploy/run \
+  -H "X-Deploy-Token: <token>"
+
+# 4. 一键回滚
+curl -s -X POST http://127.0.0.1:2770/api/v1/deploy/rollback \
+  -H "X-Deploy-Token: <token>" -H "Content-Type: application/json" \
+  -d '{"project": "<项目名>"}'
+```
+
+运维面板（HA-Services-MaintenanceView）把上述端点包成按钮，一键部署/回滚等价。
+
+**验证**：
+
+```sh
+curl -s http://127.0.0.1:2770/api/v1/deploy/status
+# 期望：各项目声明态 vs 实际态；部署后目标项目为健康
+
+curl -s http://127.0.0.1:2770/api/v1/deploy/runs
+# 期望：本次运行记录（含每项目步骤与冒烟证据）
+```
+
+### 容器路径
+
+**镜像从哪来**——平台 10 个镜像已真实发布到 Docker Hub 命名空间 `limeight/ha-*`（真实 build → push → 删本地 → 回拉 → 挂回 compose 平台全量冒烟）。命名规则：`limeight/ha-<服务名>`；tag = `<版本>-<短SHA>`（无版本号的用纯短 SHA，均可回追 commit），并列 `latest`；**生效引用一律钉 digest**（各仓 `deploy-manifest.yaml` 的 `container.image.digest`）。
 
 | 镜像 | 对应仓 |
 |---|---|
@@ -68,22 +129,45 @@ orchestration:
 | `limeight/ha-services-maintenance-view` | HA-Services-MaintenanceView |
 | `limeight/ha-bs2ha` | BS2HA（一次性迁移工具，不在编排内） |
 
-**镜像怎么被消费**：清单声明 `container.image.source: registry` 的项目，编排器在部署时真实拉取——
+10 个镜像均为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list），同一引用在不同架构机器上自动解析到对应平台的镜像。清单钉的是 **manifest list 的 digest**，不是单平台子镜像的 digest——钉到子 digest 会让另一种架构的机器拉到错误平台的镜像。构建侧事实：arm64 腿在 amd64 构建机上经 QEMU 用户态模拟构建，单镜像耗时约为原生构建的 5–15 倍，属预期；个别镜像在模拟下可能构建失败，失败逐个排查，不静默跳过、不降级为单平台。
 
-- **digest 优先**：声明了 `digest` 就按 `repo@sha256:...` 拉（拉取即钉死内容）；仅声明 `tag` 时退回按 tag 拉（不推荐，tag 可被重打移动）。
-- **拉后对照**：镜像实际 registry 摘要必须包含清单声明的 digest，不一致**响亮失败**、绝不建容器（防清单漂移或 registry 侧内容被换）。
-- **鉴权**：沿用宿主 docker 登录态（`docker login` 一次即可，编排器不持有任何 registry 凭据）。私有仓库拉不动时错误按原因分类：401 认证失败（未登录/登录过期）、403 无权限（命名空间不开放）、404 引用不存在、429 限流——各是各的问题，不会吞成一句 "pull failed"。
-- `ha-webui-nginx` 用库存镜像 `nginx:1.27-alpine`，不自建。
+**怎么一键触发**——两种形态：
 
-### 清单 kind 三种形态
+1. **编排器容器运行时**（消费上述已发布镜像）：清单声明 `runtime: container`（或配置 `orchestration.overrides.<项目>.runtime: container`，不动清单），随后与裸金属同一条命令触发——`POST /api/v1/deploy/run`（或面板按钮）。编排器按清单 `container.image`（`source: registry`）真实拉取镜像、创建并启动容器、打健康探测与冒烟断言。
+2. **平台 Compose 模板**（整平台一条命令）：模板在 HA-Services-Deployer 仓 `deploy/`，含各服务配置模板与 `.env.example`：
 
-- `service`：有自己进程与端口的服务——声明端口、健康端点、依赖、裸金属/容器执行段，是部署流水线的完整对象。
-- `external`：不在编排内的外部依赖（如面板装的 MySQL/Redis）——只做可达性检查。
-- `plugin`：插件型产物（装进别人进程的 jar 一类，如 VelocityGate、BedwarsRel-MCA）——声明安装目标运行时（`plugin.runtime`，目标在编排体系内时可加 `target_project`）、`plugin.plugins_dir` 与产物；没有自身进程，故不声明端口与健康端点。编排器对插件条目**只登记与校验、不执行安装**（阶段未设），运行记录中结果为 `plugin`，回滚被明确拒绝。缺 `plugin` 段或其必填字段时聚合校验响亮失败。
+```sh
+git clone https://github.com/CoreMatch/HA-Services-Deployer.git
+cd HA-Services-Deployer/deploy
+cp .env.example .env   # 填数据库/Redis 地址、OAuth 客户端、密钥、上游 URL
+docker compose up -d --build
+```
 
-### local_path 产物纪律
+**触发之后归谁管**——容器的日常监督由 docker 的重启策略（`restart: unless-stopped`）负责，不经 Tinyvisor，Deployer 也不常驻看管容器生命周期。但 Deployer 的容器级管理能力是已实现的可选能力，在部署运行与回滚中生效：
 
-清单声明 `baremetal.artifact.source: local_path` 的项目（当前全部），部署流水线硬要求**产物文件 + 同目录同名 `.sha256` 旁路**两件齐备，且旁路声明的校验和必须与产物内容一致——临时文件落盘、整体校验、原子改名，残缺或掉包产物进不了版本目录。preflight（deploy 模式）对这三点逐一检查，缺任一即阻断并点名路径。因此**构建脚本产出二进制时必须同时产出 `.sha256`**（`sha256sum <binary> | awk '{print $1}' > <binary>.sha256`）；只交二进制不交旁路的构建产物无法进入编排部署。
+- **按 digest 拉取**：声明了 `digest` 就按 `repo@sha256:...` 拉（拉取即钉死内容）；仅声明 `tag` 时退回按 tag 拉（不推荐，tag 可被重打移动）。拉后对照镜像实际 registry 摘要，与清单声明不一致**响亮失败**、绝不建容器。
+- **容器健康探测与冒烟**：打在容器发布的宿主端口上，语义与裸金属一致；冒烟失败 = 部署失败，走自动回滚。
+- **按 digest 钉死回滚**：运行记录存镜像内容摘要，回滚（自动与一键）按摘要定位重建；目标摘要的镜像已不在时明确拒绝，绝不退回按标签定位。
+- **孤儿容器对账**：带编排标签但项目已不在清单中的容器，默认只报不删（`orchestration.container.orphan_policy: report | remove`）。
+- **鉴权**：拉取沿用宿主 docker 登录态（`docker login` 一次即可，编排器不持有任何 registry 凭据）。拉不动时错误按原因分类：401 认证失败（未登录/登录过期）、403 无权限（命名空间不开放）、404 引用不存在、429 限流——各是各的问题，不会吞成一句 "pull failed"。
+
+**前置条件**：docker 端点可达（rootless 支持；探测顺序 `DOCKER_HOST` → `$XDG_RUNTIME_DIR/docker.sock` → `/var/run/docker.sock`，可用 `orchestration.container.docker_host` 显式指定）；编排器容器运行时形态额外要求宿主 docker 登录态可拉取 `limeight/ha-*`。Compose 形态按其 `.env.example` 备好外部 MySQL/Redis 与各密钥。
+
+**验证**：
+
+```sh
+# 编排器容器运行时形态
+curl -s http://127.0.0.1:2770/api/v1/deploy/status
+# 期望：容器项目运行态与声明态一致；runs 记录含镜像摘要证据
+docker container inspect <项目名> --format '{{.Image}} {{.State.Status}}'
+# 期望：镜像摘要与清单 digest 一致、状态 running
+
+# Compose 形态
+docker compose ps          # 各服务 healthy
+curl -s http://127.0.0.1:<端口>/health   # 按各服务部署页的健康端点逐个验证
+```
+
+`ha-webui-nginx`（Compose 可选 profile `webui`）用库存镜像 `nginx:1.27-alpine`，不自建。
 
 ## 配置项表
 

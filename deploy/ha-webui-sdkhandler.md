@@ -5,7 +5,7 @@ order: 1
 tags:
   - sdkhandler
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HA-WebUI-SDKHandler — 部署
@@ -33,7 +33,7 @@ cp config.example.yaml config.yaml    # 按下表修改
 
 - 配置文件从**工作目录**读 `config.yaml`；环境变量 `SDKHANDLER_CONFIG` 覆盖路径。
 - 必填项：`hrpauth.base_url`、`hrpauth.client_id`、`hrpauth.client_secret`（HRPAuth 的 OAuth2 服务凭据）、`hrpauth.internal_key`（组织统一的 `X-Internal-Key`；留空时 `/api/*` 全部 401，`/health` 不受影响）。
-- Docker：`docker build -t ha-webui-sdkhandler .`（多阶段，运行镜像含 node/npm/git）。
+- Docker：镜像已发布到 Docker Hub——`limeight/ha-webui-sdkhandler`（`linux/amd64` + `linux/arm64` 多架构，tag `7195a69` 并列 `latest`，生效引用钉 manifest list digest `sha256:bd4137705d8e62a3718ecd24db6f444880cf9a5973f1cfa62b27484cab5d7f8f`）；多阶段构建，运行镜像含 node/npm/git。仓库 Dockerfile 仍在，本地构建也可行，部署引用以已发布镜像为准。
 - 生产在位：`/www/wwwroot/sdkh/sdkhandler`（deploy-manifest）。
 
 ## 配置项表
