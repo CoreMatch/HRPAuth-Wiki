@@ -14,10 +14,10 @@ This repository is the documentation venue for the ecosystem again. Current-stat
 
 ## Consequences
 
-- The wiki grows again beyond the frozen snapshot; new pages follow the existing per-project layout, Chinese prose, and frontmatter convention (`title`, `description`, `order`, `tags`, `updatedAt`).
+- The wiki grows again beyond the frozen snapshot; new pages follow the identity-track layout ([0008](./0008-identity-tracks-deploy-and-dev.md)), Chinese prose, and frontmatter convention (`title`, `description`, `order`, `tags`, `updatedAt`).
 - 0003 is reversed by this entry; it stays in the knowledge base as the record of the earlier decision.
-- The `wiki.mcnb.dev` domain is still bound to the retired SamuelWiki's GitHub Pages site at the time of writing; moving the binding to this repository's Pages site is an owner console action (remove the custom domain from `SamuelCheston/SamuelWiki` Settings → Pages, add it to `CoreMatch/HRPAuth-Wiki` Settings → Pages, and point the Cloudflare origin at `corematch.github.io`). Until then this repository's Pages content is served on its default domain only.
-- This repository's Pages hosting serves the raw Markdown files (no site generator per 0001); adopting a rendered site would require revisiting 0001 first.
+- The `wiki.mcnb.dev` custom domain serves this repository's Pages site (binding moved and verified per [0007](./0007-samuelwiki-detached-scaffold-removed.md)).
+- Pages hosting builds and deploys the VitePress rendering layer ([0006](./0006-rendering-layer-over-markdown.md)); raw Markdown files stay in the repository as the single content source.
 
 ## Evidence
 
