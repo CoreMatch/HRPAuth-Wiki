@@ -5,7 +5,7 @@ order: 1
 tags:
   - hrpauth
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HRPAuth — 部署
@@ -39,8 +39,17 @@ go build -o HRPAuth      # 或 ./build.sh（= go build -o ./build/HRPAuth）
 ```
 
 - `build/` 下保留六个平台的预编译产物：darwin / linux / windows × amd64 / arm64。
-- 容器：`docker build -t hrpauth .`——非 root 用户运行，暴露端口 2778；入口脚本（`docker-entrypoint.sh`）可在启动前用环境变量渲染配置模板（`CONFIG_TEMPLATE` / `RENDERED_CONFIG`）。
-- 平台编排：整平台由 HA-Services-Deployer 的 `deploy/docker-compose.yml` 统一编排，MySQL/Redis 由外部 `.env` 提供。
+- 容器：镜像已发布到 Docker Hub——`limeight/ha-hrpauth`（`linux/amd64` + `linux/arm64` 多架构，tag = `<版本>-<短SHA>` 并列 `latest`，生效引用钉 manifest list digest）：
+
+```sh
+docker run -d --name hrpauth -p 2778:2778 \
+  -e CONFIG_TEMPLATE=/etc/ha/config.yaml.tmpl -e RENDERED_CONFIG=/app/config.yaml \
+  -v /path/to/config.yaml.tmpl:/etc/ha/config.yaml.tmpl:ro \
+  limeight/ha-hrpauth@sha256:b279c9a020b89ec834437387b506ec3c0743675754538784207cc0ea86e36695
+```
+
+  镜像以非 root 用户运行同一二进制，暴露端口 2778；入口脚本（`docker-entrypoint.sh`）可在启动前用环境变量渲染配置模板（`CONFIG_TEMPLATE` / `RENDERED_CONFIG`）。仓库 Dockerfile 仍在，本地构建 `docker build -t hrpauth .` 也可行，但部署引用以已发布镜像为准。
+- 平台编排：整平台由 HA-Services-Deployer 仓 `deploy/` 的 Compose 模板一条命令触发（`cp .env.example .env && docker compose up -d --build`），MySQL/Redis 由外部 `.env` 提供；触发后容器的日常监督由 docker 重启策略负责。Deployer 的编排定位（裸金属为主线、容器一键触发、含已实现的容器级管理能力）见其部署者文档。
 
 ## 配置项表
 

@@ -5,7 +5,7 @@ order: 1
 tags:
   - haskinproxy
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HASkinProxy — 部署
@@ -33,7 +33,7 @@ go build -o build/hasp .   # 构建命令仓库未单独声明，产物路径按
 ./build/hasp
 ```
 
-容器：仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`（环境变量渲染配置模板）。
+容器：镜像已发布到 Docker Hub——`limeight/ha-haskinproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `5daa8c3` 并列 `latest`，生效引用钉 manifest list digest `sha256:c086ffaf549c34482fa70a5b90067e39df0f92fd872610ffe60ae5419685a6b2`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`（环境变量渲染配置模板），本地构建也可行，部署引用以已发布镜像为准。
 
 ## 配置项表
 

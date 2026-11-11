@@ -12,7 +12,7 @@
 - **Avalon**——Rusted Warfare 游戏服务端：Go 运行时主体 + 外置 Java 引擎壳（helper）。
 - **Cascade**——RW 边缘反向代理：玩家唯一公网入口，房间目录、会话路由、`/goto` 跳服。
 - **RW-Mod-Injector**——客户端模组装配器：进房前装配房间模组集，SHA-256 校验，`/inj restore` 还原。
-- **HA-Services-Deployer**——版本清单与产物分发后端；可选启用为裸金属/容器部署编排器。
+- **HA-Services-Deployer**——版本清单与产物分发后端；可选启用为部署编排器。设计意图是在不使用容器的情况下编排微服务（裸金属编排为主线），容器路径一键触发，并具备已实现的容器级管理能力。
 - **HA-Services-MaintenanceView**——浏览器运维面板：编排状态、部署与回滚入口。
 - **HRPAuth**——认证服务（OAuth2 与 Yggdrasil 兼容接口）。
 - **HASkinProxy**——皮肤兼容性代理（Yggdrasil → CustomSkinLoader）。

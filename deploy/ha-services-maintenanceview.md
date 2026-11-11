@@ -5,7 +5,7 @@ order: 1
 tags:
   - maintenanceview
   - deployment
-updatedAt: 2026-11-08
+updatedAt: 2026-11-11
 ---
 
 # HA-Services-MaintenanceView — 部署
@@ -36,6 +36,7 @@ cp config.example.yaml config.yaml
 
 - `config.yaml` 不存在时启动写入默认配置；版本较旧时按链式规则逐版迁移。
 - 打开 `http://127.0.0.1:2771`（端口随 `server.listen`）。
+- 容器：镜像已发布到 Docker Hub——`limeight/ha-services-maintenance-view`（`linux/amd64` + `linux/arm64` 多架构，tag `4567105` 并列 `latest`，生效引用钉 manifest list digest `sha256:52ee8d3d1a0af9695f815870b0f25ecbef2e9141c8e65735585750ed414b908a`；前端已内嵌构建）。容器模板端口 `:18081`，与裸金属默认端口不一致（见下表）。
 
 ## 配置项表
 
