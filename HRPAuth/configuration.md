@@ -18,7 +18,7 @@ HRPAuth 使用根目录下的 `config.yaml` 作为主配置文件。首次启动
 > [HRPAuth-Yggdrasil-API](https://github.com/CoreMatch/HRPAuth-Yggdrasil-API) 服务；
 > 核心新增 `core_api`、`yggdrasil_api`（服务间通信）、`sdk_packages` 与数据库重试字段。
 > 本页以下章节描述的是拆分前的结构，最新字段以 Wiki 的
-> [配置与接口](https://wiki.mcnb.dev/projects/hrpauth/configuration)页为准
+> [部署者文档·HRPAuth](https://wiki.mcnb.dev/deploy/hrpauth)（配置项表）页为准
 > （HA-Contract 的 `docs/dev/HRPAuth/configuration.md` 已移入该仓库的 `archive/docs/HRPAuth/`，不再维护）。
 
 ## 配置生命周期
