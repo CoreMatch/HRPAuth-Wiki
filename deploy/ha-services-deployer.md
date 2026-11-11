@@ -62,7 +62,12 @@ orchestration:
 | `limeight/ha-services-maintenance-view` | HA-Services-MaintenanceView |
 | `limeight/ha-bs2ha` | BS2HA（一次性迁移工具，不在编排内） |
 
-注意：Deployer 运行时的 `registry` 镜像源**鉴权拉取本阶段未实现**（schema 与校验已就绪，清单里的 digest 引用是部署声明）；`ha-webui-nginx` 用库存镜像 `nginx:1.27-alpine`，不自建。
+**镜像怎么被消费**：清单声明 `container.image.source: registry` 的项目，编排器在部署时真实拉取——
+
+- **digest 优先**：声明了 `digest` 就按 `repo@sha256:...` 拉（拉取即钉死内容）；仅声明 `tag` 时退回按 tag 拉（不推荐，tag 可被重打移动）。
+- **拉后对照**：镜像实际 registry 摘要必须包含清单声明的 digest，不一致**响亮失败**、绝不建容器（防清单漂移或 registry 侧内容被换）。
+- **鉴权**：沿用宿主 docker 登录态（`docker login` 一次即可，编排器不持有任何 registry 凭据）。私有仓库拉不动时错误按原因分类：401 认证失败（未登录/登录过期）、403 无权限（命名空间不开放）、404 引用不存在、429 限流——各是各的问题，不会吞成一句 "pull failed"。
+- `ha-webui-nginx` 用库存镜像 `nginx:1.27-alpine`，不自建。
 
 ### 清单 kind 三种形态
 
