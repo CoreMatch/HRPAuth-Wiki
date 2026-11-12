@@ -36,7 +36,7 @@ cp config.example.yaml config.yaml
 
 - `config.yaml` 不存在时启动写入默认配置；版本较旧时按链式规则逐版迁移。
 - 打开 `http://127.0.0.1:2771`（端口随 `server.listen`）。
-- 容器：镜像已发布到 Docker Hub——`limeight/ha-services-maintenance-view`（`linux/amd64` + `linux/arm64` 多架构，tag `4567105` 并列 `latest`，生效引用钉 manifest list digest `sha256:52ee8d3d1a0af9695f815870b0f25ecbef2e9141c8e65735585750ed414b908a`；前端已内嵌构建）。容器模板端口 `:18081`，与裸金属默认端口不一致（见下表）。
+- 容器：镜像已发布到 Docker Hub——`limeight/ha-services-maintenance-view`（`linux/amd64` + `linux/arm64` 多架构，tag `4567105` 并列 `latest`，生效引用钉 manifest list digest `sha256:52ee8d3d1a0af9695f815870b0f25ecbef2e9141c8e65735585750ed414b908a`；前端已内嵌构建）。容器模板端口 `:2771`，与裸金属默认端口统一（原 `:18081` 系笔误，已废，见下表）。
 
 ## 配置项表
 
@@ -58,9 +58,9 @@ cp config.example.yaml config.yaml
 
 | 端口 | 场景 | 暴露 |
 |---|---|---|
-| `:2771` | 裸金属生产（代码默认与 `config.example.yaml` 一致，生产实测 `/healthz` 200） | 仅回环（`deploy-manifest.yaml` 声明 `exposure: loopback`）；面板无内置鉴权面时优先 SSH 隧道而不是暴露 |
-| `:18081` | 容器模板（Dockerfile） | 容器场景；与裸金属端口不一致已在该仓 knowledge 记录 |
-| `:5173` | 前端 Vite 开发服务器（仅开发） | 开发机；代理 `/api` 与 `/healthz` 到后端（开发时后端须跑在 `:18081`） |
+| `:2771` | 裸金属生产 + 容器模板（统一；代码默认与 `config.example.yaml` 一致，生产实测 `/healthz` 200） | 仅回环（`deploy-manifest.yaml` 声明 `exposure: loopback`）；面板无内置鉴权面时优先 SSH 隧道而不是暴露 |
+| ~~`:18081`~~ | 已废：历史容器模板笔误端口 | 2026-11-12 统一到 `:2771`；其他服务均在 27xx 段，18081 系当年写错 |
+| `:5173` | 前端 Vite 开发服务器（仅开发） | 开发机；代理 `/api` 与 `/healthz` 到后端（开发时后端须跑在 `:2771`） |
 
 ## 启动 / 停止 / 升级 / 回滚
 
