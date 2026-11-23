@@ -5,7 +5,7 @@ order: 1
 tags:
   - haskinlib
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # HASkinLib — 部署
@@ -22,6 +22,8 @@ HASkinLib 是生态的皮肤库服务：纹理上传、预览图生成、按哈�
 | HRPAuth 核心 | 运行期经 `core_api` 调用（如令牌校验）；**非启动硬依赖**——核心不在也能启动，相关端点调用会失败 |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，编排器只读） |
 
+清单声明的服务版本为 `1.3.0`；配置 schema 仍为 v7。
+
 ## 从零部署
 
 ```sh
@@ -33,14 +35,14 @@ go build -o ./build/hasl     # build.sh 内容即此一条
 
 - 配置文件不存在时按内置默认自动生成（version 7）；已有低版本配置启动时自动迁移（1→7 链）。
 - 数据库迁移启动时自动执行（golang-migrate，失败即退出）。
-- 容器：镜像已发布到 Docker Hub——`limeight/ha-haskinlib`（`linux/amd64` + `linux/arm64` 多架构，tag `0.6.0-46f8663` 并列 `latest`，生效引用钉 manifest list digest）：
+- 容器：镜像已发布到 Docker Hub——`limeight/ha-haskinlib`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-32976d3` 并列 `latest`，生效引用钉 manifest list digest）：
 
 ```sh
 docker run -d --name haskinlib -p 2701:2701 \
   -e CONFIG_TEMPLATE=/etc/ha/config.yaml.tmpl -e RENDERED_CONFIG=/app/config.yaml \
   -v /path/to/config.yaml.tmpl:/etc/ha/config.yaml.tmpl:ro \
   -v haskinlib-data:/app/data \
-  limeight/ha-haskinlib@sha256:56350ff11f45f183f147c60ab147305856f13142c648a9960388670d287c7f40
+  limeight/ha-haskinlib@sha256:9e121bf266c5698af5dac2ed88ac00859f043c68c60bfa07321b9747f2e14d15
 ```
 
   配置渲染机制同生态其他服务（`docker-entrypoint.sh` 经 envsubst）；纹理与预览存于 `/app/data`。

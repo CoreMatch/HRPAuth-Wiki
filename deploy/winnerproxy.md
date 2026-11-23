@@ -5,12 +5,14 @@ order: 1
 tags:
   - winnerproxy
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # WinnerProxy — 部署
 
 HA-Contract 的代理服务组件：Mojang 玩家的加入代理，按账号来源分发请求，保留稳定 UUID。
+
+> **1.3.0 转折点**：这是最后一个将“server owner 自行搭建 HA”作为默认路径的版本。后续版本拟将维护者运营的公共 HA 作为一等接入选项，重点改善非站长 server owner 的接入体验；此处仅表达设计意图，不代表弃用自建、承诺改变默认策略或给出时间表。
 
 ## 运行前提
 
@@ -21,7 +23,7 @@ HA-Contract 的代理服务组件：Mojang 玩家的加入代理，按账号来�
 | 数据库 / Redis | 无（内存缓存） |
 | 进程管理 | 面板管理（`manager: aapanel`，安装根 `/www/wwwroot/wp`，二进制 `winnerproxy`） |
 
-清单声明的服务版本为 `0.2.0`。
+清单声明的服务版本为 `1.3.0`。
 
 ## 从零部署
 
@@ -32,7 +34,7 @@ go build -o build/winnerproxy .   # 构建命令仓库未单独声明，产物�
 ./build/winnerproxy
 ```
 
-容器：镜像已发布到 Docker Hub——`limeight/ha-winnerproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `0.2.0-de34ed2` 并列 `latest`，生效引用钉 manifest list digest `sha256:51795ffad54b8bb90e36470ae857f0414c26eb64185e7562aa999eecbda0b7bc`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`，本地构建也可行，部署引用以已发布镜像为准。
+容器：镜像已发布到 Docker Hub——`limeight/ha-winnerproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-f401abe` 并列 `latest`，生效引用钉 manifest list digest `sha256:1ec004a4f53561f120a26ab42810c7c00f35842633adcf7bbb4e6b1b82a6dd06`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`，本地构建也可行，部署引用以已发布镜像为准。
 
 ## 配置项表
 
@@ -55,7 +57,7 @@ go build -o build/winnerproxy .   # 构建命令仓库未单独声明，产物�
 | `upstreams.official.timeout_sec` / `enabled` | 10 / true | 官方上游超时与开关 |
 | `upstreams.hrpauth.url` | — | HRPAuth-Yggdrasil-API 上游地址 |
 | `upstreams.hrpauth.client_id` / `client_secret` / `timeout_sec` / `enabled` | 与 hrpauth 段同一对变量 / 10 / true | Yggdrasil 上游 |
-| `site.name` / `site.version` | WinnerProxy / "0.2.0" | 站点自报（version 带引号防 YAML 解析坑） |
+| `site.name` / `site.version` | WinnerProxy / "1.3.0" | 站点自报（version 带引号防 YAML 解析坑） |
 
 配置重启生效；仓库未声明热加载机制。容器部署时配置为启动渲染的一次性文件，换取成功后的写回不跨重启持久化（每次启动重新换取，HRPAuth get-or-create 保证 secret 稳定）。
 

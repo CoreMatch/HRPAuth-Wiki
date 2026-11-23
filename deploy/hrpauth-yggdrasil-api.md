@@ -5,18 +5,20 @@ order: 1
 tags:
   - yggdrasil
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # HRPAuth-Yggdrasil-API — 部署
 
 HRPAuth-Yggdrasil-API 是 HRPAuth 生态的 Yggdrasil 兼容 Minecraft 认证服务：对游戏客户端提供标准 Yggdrasil 协议面（兼容 authlib-injector），账号校验与生态集成对接运行中的 HRPAuth 核心。
 
+> **1.3.0 转折点**：这是最后一个将“server owner 自行搭建 HA”作为默认路径的版本。后续版本拟将维护者运营的公共 HA 作为一等接入选项，重点改善非站长 server owner 的接入体验；此处仅表达设计意图，不代表弃用自建、承诺改变默认策略或给出时间表。
+
 ## 运行前提
 
 | 项 | 要求 |
 |---|---|
-| Go | 源码构建需要：`go.mod` 声明 `go 1.26.10`（README 写 1.26.4+，以 go.mod 为准）；或用 Docker |
+| Go | 源码构建需要：`go.mod` 声明 `go 1.26.10`；或用 Docker |
 | MySQL | 必需（启动硬依赖）；**先建库建用户**，表在启动时自动创建 |
 | Redis | 必需 |
 | HRPAuth 核心 | 配置了 `core_api` 凭据时启动期必需（启动期凭据解析任何失败即中止）；运行期常规用户认证与 WebUI 集成也必需。只有 `core_api` 凭据留空时才可无核心启动，此时仅内部登记的代理账号可认证 |
@@ -35,14 +37,14 @@ HRPAuth-Yggdrasil-API 是 HRPAuth 生态的 Yggdrasil 兼容 Minecraft 认证服
 
 ## 从零部署（Docker）
 
-镜像已发布到 Docker Hub：`limeight/ha-hrpauth-yggdrasil-api`（`linux/amd64` + `linux/arm64` 多架构，tag `1.0.0-7ab0d29` 并列 `latest`，生效引用钉 manifest list digest）：
+镜像已发布到 Docker Hub：`limeight/ha-hrpauth-yggdrasil-api`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-1d1b2cf` 并列 `latest`，生效引用钉 manifest list digest）：
 
 ```sh
 docker run -d --name yggdrasil-api \
   -p 2770:2770 \
   -v /path/to/config.yaml:/app/config.yaml \
   -v ygg-storage:/app/storage \
-  limeight/ha-hrpauth-yggdrasil-api@sha256:9c78eddf66dd493aa2cdd77193ba52e5e85fcb378edeec45d0425e5a551c2f59
+  limeight/ha-hrpauth-yggdrasil-api@sha256:c9e880dd023db4220874638bfde7cad5ae62edb320444b075e88898347058e6e
 ```
 
 - 镜像**不带** `config.yaml`，挂载到 `/app/config.yaml`（挂载可写目录首次运行也可生成）；

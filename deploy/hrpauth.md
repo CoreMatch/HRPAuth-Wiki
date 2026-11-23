@@ -5,7 +5,7 @@ order: 1
 tags:
   - hrpauth
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # HRPAuth — 部署
@@ -22,7 +22,7 @@ updatedAt: 2026-11-11
 | SMTP | 必需（验证邮件发信） |
 | 进程管理 | 面板管理（`manager: aapanel`，安装根 `/www/wwwroot/ha`，二进制 `HRPAuth`） |
 
-清单声明的服务版本为 `62526`（仓库无版本 tag，此为清单记录值）。
+清单声明的服务版本为 `1.3.0`。
 
 ## 从零部署
 
@@ -39,13 +39,13 @@ go build -o HRPAuth      # 或 ./build.sh（= go build -o ./build/HRPAuth）
 ```
 
 - `build/` 下保留六个平台的预编译产物：darwin / linux / windows × amd64 / arm64。
-- 容器：镜像已发布到 Docker Hub——`limeight/ha-hrpauth`（`linux/amd64` + `linux/arm64` 多架构，tag = `<版本>-<短SHA>` 并列 `latest`，生效引用钉 manifest list digest）：
+- 容器：镜像已发布到 Docker Hub——`limeight/ha-hrpauth`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-865274e` 并列 `latest`，生效引用钉 manifest list digest `sha256:c2bfab07b7e57dbf0d878a317029b3c789305529fc8feeced588d300dcef659a`）：
 
 ```sh
 docker run -d --name hrpauth -p 2778:2778 \
   -e CONFIG_TEMPLATE=/etc/ha/config.yaml.tmpl -e RENDERED_CONFIG=/app/config.yaml \
   -v /path/to/config.yaml.tmpl:/etc/ha/config.yaml.tmpl:ro \
-  limeight/ha-hrpauth@sha256:b279c9a020b89ec834437387b506ec3c0743675754538784207cc0ea86e36695
+  limeight/ha-hrpauth@sha256:c2bfab07b7e57dbf0d878a317029b3c789305529fc8feeced588d300dcef659a
 ```
 
   镜像以非 root 用户运行同一二进制，暴露端口 2778；入口脚本（`docker-entrypoint.sh`）可在启动前用环境变量渲染配置模板（`CONFIG_TEMPLATE` / `RENDERED_CONFIG`）。仓库 Dockerfile 仍在，本地构建 `docker build -t hrpauth .` 也可行，但部署引用以已发布镜像为准。

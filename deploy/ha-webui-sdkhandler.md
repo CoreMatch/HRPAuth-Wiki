@@ -5,7 +5,7 @@ order: 1
 tags:
   - sdkhandler
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # HA-WebUI-SDKHandler — 部署
@@ -16,12 +16,14 @@ HA-WebUI-SDKHandler 是构建服务：轮询 HRPAuth 拉取 SDK 源码头包 →
 
 | 项 | 要求 |
 |---|---|
-| Go | 源码构建需要：`go.mod` 声明 `go 1.26.10`（README 写 1.25+，以 go.mod 为准） |
+| Go | 源码构建需要：`go.mod` 声明 `go 1.26.10` |
 | Node.js / npm / git | **运行时必需**——前端编译发生在运行时（Docker 镜像已内置） |
 | HRPAuth 核心 | 必需（唯一 SDK 包来源，经 `GET /services/sdk-packages` 轮询） |
 | 前端模板 | 本地 HRPAuth-WebUI 检出，或配置 Git URL 自动克隆 |
 | 数据库 / Redis | 无（状态落 `state_dir` 文件） |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，编排器只读） |
+
+清单声明的服务版本为 `1.3.0`。
 
 ## 从零部署
 
@@ -33,7 +35,7 @@ cp config.example.yaml config.yaml    # 按下表修改
 
 - 配置文件从**工作目录**读 `config.yaml`；环境变量 `SDKHANDLER_CONFIG` 覆盖路径。
 - 必填项：`hrpauth.base_url`、`hrpauth.client_id`、`hrpauth.client_secret`（HRPAuth 的 OAuth2 服务凭据）、`hrpauth.internal_key`（组织统一的 `X-Internal-Key`；留空时 `/api/*` 全部 401，`/health` 不受影响）。
-- Docker：镜像已发布到 Docker Hub——`limeight/ha-webui-sdkhandler`（`linux/amd64` + `linux/arm64` 多架构，tag `7195a69` 并列 `latest`，生效引用钉 manifest list digest `sha256:bd4137705d8e62a3718ecd24db6f444880cf9a5973f1cfa62b27484cab5d7f8f`）；多阶段构建，运行镜像含 node/npm/git。仓库 Dockerfile 仍在，本地构建也可行，部署引用以已发布镜像为准。
+- Docker：镜像已发布到 Docker Hub——`limeight/ha-webui-sdkhandler`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-1557bee` 并列 `latest`，生效引用钉 manifest list digest `sha256:5a31850590442f5ec7659fa088a7030072bf2cd39e49d89d811805009e055bce`）；多阶段构建，运行镜像含 node/npm/git。仓库 Dockerfile 仍在，本地构建也可行，部署引用以已发布镜像为准。
 - 生产在位：`/www/wwwroot/sdkh/sdkhandler`（deploy-manifest）。
 
 ## 配置项表

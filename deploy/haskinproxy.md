@@ -5,7 +5,7 @@ order: 1
 tags:
   - haskinproxy
   - deployment
-updatedAt: 2026-11-11
+updatedAt: 2026-11-24
 ---
 
 # HASkinProxy — 部署
@@ -16,13 +16,13 @@ updatedAt: 2026-11-11
 
 | 项 | 要求 |
 |---|---|
-| 构建 | Go（`go.mod` 1.26.10；README 写 1.24+，以 go.mod 为准） |
+| 构建 | Go（`go.mod` 1.26.10） |
 | 上游 | 必需：Yggdrasil 兼容服务（生态内为 HRPAuth，`deploy-manifest.yaml` 依赖 hrpauth required） |
 | 凭据 | OAuth2 client_credentials 的 client_id / client_secret（与 HRPAuth 的 `service_clients` 种子同源） |
 | 数据库 / Redis | 无（内存缓存 freecache） |
 | 进程管理 | 面板管理（`manager: aapanel`，安装根 `/www/wwwroot/hasp`，二进制 `hasp`） |
 
-版本号仓库未声明。
+清单声明的服务版本为 `1.3.0`；内置 SDK 包版本独立维护为 `1.0.0`。
 
 ## 从零部署
 
@@ -33,7 +33,7 @@ go build -o build/hasp .   # 构建命令仓库未单独声明，产物路径按
 ./build/hasp
 ```
 
-容器：镜像已发布到 Docker Hub——`limeight/ha-haskinproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `5daa8c3` 并列 `latest`，生效引用钉 manifest list digest `sha256:c086ffaf549c34482fa70a5b90067e39df0f92fd872610ffe60ae5419685a6b2`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`（环境变量渲染配置模板），本地构建也可行，部署引用以已发布镜像为准。
+容器：镜像已发布到 Docker Hub——`limeight/ha-haskinproxy`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-08ab449` 并列 `latest`，生效引用钉 manifest list digest `sha256:cc602d6e90c2b0400574ab58208887110c272b3fdc43dc57678a30b969dae06a`）。仓库提供 `Dockerfile` 与 `docker-entrypoint.sh`（环境变量渲染配置模板），本地构建也可行，部署引用以已发布镜像为准。
 
 ## 配置项表
 
