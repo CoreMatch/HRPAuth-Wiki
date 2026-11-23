@@ -37,14 +37,14 @@ HRPAuth-Yggdrasil-API 是 HRPAuth 生态的 Yggdrasil 兼容 Minecraft 认证服
 
 ## 从零部署（Docker）
 
-镜像已发布到 Docker Hub：`limeight/ha-hrpauth-yggdrasil-api`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-1d1b2cf` 并列 `latest`，生效引用钉 manifest list digest）：
+镜像已发布到 Docker Hub：`limeight/ha-hrpauth-yggdrasil-api`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-20789bd` 并列 `latest`，生效引用钉 manifest list digest）：
 
 ```sh
 docker run -d --name yggdrasil-api \
   -p 2770:2770 \
   -v /path/to/config.yaml:/app/config.yaml \
   -v ygg-storage:/app/storage \
-  limeight/ha-hrpauth-yggdrasil-api@sha256:c9e880dd023db4220874638bfde7cad5ae62edb320444b075e88898347058e6e
+  limeight/ha-hrpauth-yggdrasil-api@sha256:fe1b123c3178d3a0be16c06ac43fb5dc0a24abddd11d0087a14c77b7722ec521
 ```
 
 - 镜像**不带** `config.yaml`，挂载到 `/app/config.yaml`（挂载可写目录首次运行也可生成）；
