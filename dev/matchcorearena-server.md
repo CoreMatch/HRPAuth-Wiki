@@ -13,7 +13,7 @@ updatedAt: 2026-11-08
 ## 代码结构
 
 ```
-main.go                  入口：配置加载 → 数据库迁移 → MySQL/Redis/HRPAuth 初始化
+main.go                  入口：配置加载 → 数据库迁移 → MySQL/Redis/Armorial 初始化
                          → tokens 加载 → 路由注册 → 匹配引擎 → HTTP 监听
 api/
   router.go              路由装配与端点鉴权分级
@@ -23,11 +23,11 @@ api/
 config/                  配置加载、版本迁移链（1.0.0→1.9.0）、严格校验
 internal/
   apperr/                业务错误码与 HTTP 状态映射
-  auth/                  HRPAuth 客户端、令牌校验器、tokens.yaml 存储
+  auth/                  Armorial 客户端、令牌校验器、tokens.yaml 存储
   metrics/               计数器注册表（内存快照）
   rating/                加权 Elo 评分模型（纯函数，无外部依赖）
   reportlog/             拒绝/冲突记录的有界内存环
-  response/              HA-Contract 统一响应信封
+  response/              Armorial Contract 统一响应信封
   service/               业务层：match（结算）、matchmaking（队列+引擎）、
                          user / friend / team / ranking / maintenance /
                          uuid_resolve
@@ -53,7 +53,7 @@ go test ./...        # CI（.github/workflows/go.yml）同此三步
 `internal/service/matchmaking.go::Join`：
 
 - 单人入队：不在任何队伍中才可单独排队；写入 `matchmaking_queue`（`uk_user` 唯一键保证每人同时至多一条排队记录），评分取当前 `users.rank_score` 快照。
-- 队伍入队（`party_members` 非空）：成员 UUID 经 HRPAuth 服务凭据解析为 uid → 建临时队伍（`matchmaking_parties` + `matchmaking_party_members`）→ 全队写入队列共享同一 `party_id`。人数须在 [2, 模式单队上限] 内；成员不得已在其他队伍或队列中。
+- 队伍入队（`party_members` 非空）：成员 UUID 经 Armorial 服务凭据解析为 uid → 建临时队伍（`matchmaking_parties` + `matchmaking_party_members`）→ 全队写入队列共享同一 `party_id`。人数须在 [2, 模式单队上限] 内；成员不得已在其他队伍或队列中。
 
 ### 引擎成局
 
@@ -139,7 +139,7 @@ E = 1 / (1 + 10^((R_对方 − R_本方) / 400))
 唯一入口 `POST /api/matches`（`api/handler/match.go::Report`）：
 
 - **鉴权**：OPS 级凭据（`auth.maintenance_token` 或 `tokens.yaml` 服务令牌）且持 `match:report` scope；玩家令牌一律 403。
-- **身份信任边界**：参与者 uid 只来自 HRPAuth 服务间接点（`GET /services/users/{uuid}`）的解析结果，上报方的任何 uid 字段都不被信任；需要 `auth.hrpauth.service_client_id/secret` 已配置。
+- **身份信任边界**：参与者 uid 只来自 Armorial 服务间接点（`GET /services/users/{uuid}`）的解析结果，上报方的任何 uid 字段都不被信任；需要 `auth.hrpauth.service_client_id/secret` 已配置。
 - **载荷**（`internal/service/match.go::TeamReportInput`）：
 
 | 字段 | 必填 | 说明 |
@@ -169,7 +169,7 @@ E = 1 / (1 + 10^((R_对方 − R_本方) / 400))
 
 ### 关键表语义
 
-- `users`：uid 即 HRPAuth uid；`rank_score`（评分，下限 0）、`wins_count`（定级判定）、`experience`/`level`。结算事务内懒建行。
+- `users`：uid 即 Armorial uid；`rank_score`（评分，下限 0）、`wins_count`（定级判定）、`experience`/`level`。结算事务内懒建行。
 - `matches` + `match_participants`：对局主表与参与者明细（赛前分、Δ、KDA、生存时长）；`uk_game_id` 幂等。
 - `matchmaking_queue`：`uk_user` 保证每人至多一条；`rank_score` 为入队时快照。
 - `rankings`：`(user_uid, rank_type, season)` 唯一，结算时增量维护。

@@ -1,16 +1,16 @@
 <div align="center">
-  <h1>HRPAuth Wiki</h1>
+  <h1>Armorial Wiki</h1>
   <p><strong>Deployment and development, without the scavenger hunt.</strong></p>
   <p><a href="./README.zh-CN.md">简体中文</a></p>
 </div>
 
-HRPAuth Wiki is the live Chinese documentation home for people deploying and developing HA services. Separate deployer and developer tracks, local search, and broad ecosystem coverage help each audience find relevant material.
+Armorial Wiki is the live Chinese documentation home for people deploying and developing Armorial services. Separate deployer and developer tracks, local search, and broad ecosystem coverage help each audience find relevant material.
 
-## Why HRPAuth Wiki
+## Why Armorial Wiki
 
 - **Start with your role.** Dedicated `/deploy/` and `/dev/` navigation keep operational and development guidance distinct.
 - **Find answers locally.** Built-in search helps readers locate material without leaving the documentation.
-- **See the wider ecosystem.** Coverage extends across HA services, clients, proxies, and supporting components.
+- **See the wider ecosystem.** Coverage extends across Armorial services, clients, proxies, and supporting components.
 - **Use a living reference.** The site is maintained as the ecosystem’s documentation home rather than a static archive.
 
 ## Learn more
@@ -25,4 +25,4 @@ The wiki is not guaranteed to be complete, always current, or authoritative over
 
 ## License
 
-[AGPL-3.0](LICENSE)
+[AGPL-3.0](https://github.com/CoreMatch/HRPAuth-Wiki/blob/main/LICENSE)

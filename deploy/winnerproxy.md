@@ -10,7 +10,7 @@ updatedAt: 2026-11-24
 
 # WinnerProxy — 部署
 
-HA-Contract 的代理服务组件：Mojang 玩家的加入代理，按账号来源分发请求，保留稳定 UUID。
+Armorial Contract 的代理服务组件：Mojang 玩家的加入代理，按账号来源分发请求，保留稳定 UUID。
 
 > **1.3.0 转折点**：这是最后一个将“server owner 自行搭建 HA”作为默认路径的版本。后续版本拟将维护者运营的公共 HA 作为一等接入选项，重点改善非站长 server owner 的接入体验；此处仅表达设计意图，不代表弃用自建、承诺改变默认策略或给出时间表。
 
@@ -19,7 +19,7 @@ HA-Contract 的代理服务组件：Mojang 玩家的加入代理，按账号来�
 | 项 | 要求 |
 |---|---|
 | 构建 | Go（`go.mod` 1.26.10） |
-| 依赖服务 | 必需：HRPAuth（启动期凭据换取/校验）与 HRPAuth-Yggdrasil-API（上游转发）——`deploy-manifest.yaml` 均声明 required |
+| 依赖服务 | 必需：Armorial（启动期凭据换取/校验）与 HRPAuth-Yggdrasil-API（上游转发）——`deploy-manifest.yaml` 均声明 required |
 | 数据库 / Redis | 无（内存缓存） |
 | 进程管理 | 面板管理（`manager: aapanel`，安装根 `/www/wwwroot/wp`，二进制 `winnerproxy`） |
 
@@ -49,7 +49,7 @@ go build -o build/winnerproxy .   # 构建命令仓库未单独声明，产物�
 | `log.level` / `log.format` | info / text | 日志 |
 | `cache.size` | 104857600 | 内存缓存大小（字节，约 100MB） |
 | `cache.ttl_sec` | 300 | 缓存 TTL |
-| `hrpauth.url` | — | HRPAuth 地址（凭据换取/校验） |
+| `hrpauth.url` | — | Armorial 地址（凭据换取/校验） |
 | `hrpauth.client_id` / `client_secret` | — | v14 语义"填什么就按什么"：填 super 凭据 → 启动时经 `POST /oauth/register` 换取本服务低权限客户端（client_id = presence 名 WinnerProxy，super 凭据只用那一次）；填专用低权限对 → 只做幂等校验（client_credentials 令牌请求） |
 | `hrpauth.presence.enabled` / `name` / `ttl_seconds` | true / WinnerProxy / 0 | presence 自报（0 = 永不过期） |
 | `hrpauth.sdk.enabled` | true | SDK 集成 |
@@ -59,7 +59,7 @@ go build -o build/winnerproxy .   # 构建命令仓库未单独声明，产物�
 | `upstreams.hrpauth.client_id` / `client_secret` / `timeout_sec` / `enabled` | 与 hrpauth 段同一对变量 / 10 / true | Yggdrasil 上游 |
 | `site.name` / `site.version` | WinnerProxy / "1.3.0" | 站点自报（version 带引号防 YAML 解析坑） |
 
-配置重启生效；仓库未声明热加载机制。容器部署时配置为启动渲染的一次性文件，换取成功后的写回不跨重启持久化（每次启动重新换取，HRPAuth get-or-create 保证 secret 稳定）。
+配置重启生效；仓库未声明热加载机制。容器部署时配置为启动渲染的一次性文件，换取成功后的写回不跨重启持久化（每次启动重新换取，Armorial get-or-create 保证 secret 稳定）。
 
 ## 端口与暴露面
 
@@ -89,5 +89,5 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | Mojang 玩家验证不走官方上游 | `upstreams.official.enabled` 关闭 | 按部署形态决定开关；Mojang upstream 仅在 hasJoined 阶段使用 |
-| 启动日志出现"种子跳过"类告警 | `client_secret` 填成了 super secret（HRPAuth 防呆） | 本服务走自助注册拿独立 secret，或修正凭据 |
+| 启动日志出现"种子跳过"类告警 | `client_secret` 填成了 super secret（Armorial 防呆） | 本服务走自助注册拿独立 secret，或修正凭据 |
 | 上游转发失败 | `upstreams.hrpauth` 不可达 | 检查 HRPAuth-Yggdrasil-API 健康 |

@@ -57,8 +57,8 @@ go test ./...                       # 提交前必须全绿，需要时追加 -r
 - 三档：`observe`（尽力送达，不持久不重试）/ `veto`（同步可否决，超时故障一律 fail-open）/ `deliver`（WAL 至少一次，按 `eventId` 去重）。
 - 配置：`data/Plugins.json`；空 = 零回归；非法 = 启动失败（`internal/plugin/config.go::validate`）。
 - 否决双闸门：manifest 声明 `veto: true` 且 `vetoEvents` 授权，默认拒绝；判定在 `internal/plugin/hub.go::vetoConsulted`；理由净化 `internal/plugin/hub.go::sanitizeReason`。
-- 事件全集：`internal/plugin/eventv2.go::allEventNames`；机器可读目录在 `docs/plugins/EVENT-CATALOG.md` 的 `plugin-events` 区块，由 CI 与代码、HA-Contract 三方同步校验。
-- 契约权威：HA-Contract `docs/api/openapi/avalon-plugin-v1.yaml`；开发者文档与 Go 模板在 `docs/plugins/`。
+- 事件全集：`internal/plugin/eventv2.go::allEventNames`；机器可读目录在 `docs/plugins/EVENT-CATALOG.md` 的 `plugin-events` 区块，由 CI 与代码、Armorial Contract 三方同步校验。
+- 契约权威：Armorial Contract `docs/api/openapi/avalon-plugin-v1.yaml`；开发者文档与 Go 模板在 `docs/plugins/`。
 
 ### helper 线协议
 

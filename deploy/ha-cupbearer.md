@@ -118,7 +118,7 @@ curl -s http://127.0.0.1:2770/api/v1/deploy/runs
 
 | 镜像 | 对应仓 |
 |---|---|
-| `limeight/ha-hrpauth` | HRPAuth |
+| `limeight/ha-hrpauth` | Armorial |
 | `limeight/ha-hrpauth-yggdrasil-api` | HRPAuth-Yggdrasil-API |
 | `limeight/ha-haskinlib` | HASkinLib |
 | `limeight/ha-haskinproxy` | HASkinProxy |

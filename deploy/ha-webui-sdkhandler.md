@@ -10,7 +10,7 @@ updatedAt: 2026-11-24
 
 # HA-WebUI-SDKHandler — 部署
 
-HA-WebUI-SDKHandler 是构建服务：轮询 HRPAuth 拉取 SDK 源码头包 → 全量注入 HRPAuth-WebUI 前端模板 → 编译聚合前端 → 把静态产物发布到固定产物目录（remove-then-rename 替换；已知托管缺口见仓内 `knowledge/0004`）。
+HA-WebUI-SDKHandler 是构建服务：轮询 Armorial 拉取 SDK 源码头包 → 全量注入 HRPAuth-WebUI 前端模板 → 编译聚合前端 → 把静态产物发布到固定产物目录（remove-then-rename 替换；已知托管缺口见仓内 `knowledge/0004`）。
 
 ## 运行前提
 
@@ -18,7 +18,7 @@ HA-WebUI-SDKHandler 是构建服务：轮询 HRPAuth 拉取 SDK 源码头包 →
 |---|---|
 | Go | 源码构建需要：`go.mod` 声明 `go 1.26.10` |
 | Node.js / npm / git | **运行时必需**——前端编译发生在运行时（Docker 镜像已内置） |
-| HRPAuth 核心 | 必需（唯一 SDK 包来源，经 `GET /services/sdk-packages` 轮询） |
+| Armorial 核心 | 必需（唯一 SDK 包来源，经 `GET /services/sdk-packages` 轮询） |
 | 前端模板 | 本地 HRPAuth-WebUI 检出，或配置 Git URL 自动克隆 |
 | 数据库 / Redis | 无（状态落 `state_dir` 文件） |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，编排器只读） |
@@ -34,7 +34,7 @@ cp config.example.yaml config.yaml    # 按下表修改
 ```
 
 - 配置文件从**工作目录**读 `config.yaml`；环境变量 `SDKHANDLER_CONFIG` 覆盖路径。
-- 必填项：`hrpauth.base_url`、`hrpauth.client_id`、`hrpauth.client_secret`（HRPAuth 的 OAuth2 服务凭据）、`hrpauth.internal_key`（组织统一的 `X-Internal-Key`；留空时 `/api/*` 全部 401，`/health` 不受影响）。
+- 必填项：`hrpauth.base_url`、`hrpauth.client_id`、`hrpauth.client_secret`（Armorial 的 OAuth2 服务凭据）、`hrpauth.internal_key`（组织统一的 `X-Internal-Key`；留空时 `/api/*` 全部 401，`/health` 不受影响）。
 - Docker：镜像已发布到 Docker Hub——`limeight/ha-webui-sdkhandler`（`linux/amd64` + `linux/arm64` 多架构，tag `1.3.0-1557bee` 并列 `latest`，生效引用钉 manifest list digest `sha256:5a31850590442f5ec7659fa088a7030072bf2cd39e49d89d811805009e055bce`）；多阶段构建，运行镜像含 node/npm/git。仓库 Dockerfile 仍在，本地构建也可行，部署引用以已发布镜像为准。
 - 生产在位：`/www/wwwroot/sdkh/sdkhandler`（deploy-manifest）。
 
@@ -53,10 +53,10 @@ cp config.example.yaml config.yaml    # 按下表修改
 
 | 键 | 默认 | 作用 |
 |---|---|---|
-| `base_url` | `http://127.0.0.1:2778` | HRPAuth 核心地址（必填） |
+| `base_url` | `http://127.0.0.1:2778` | Armorial 核心地址（必填） |
 | `client_id` / `client_secret` | `""` | OAuth2 服务凭据（必填） |
 | `poll_interval_seconds` | `60` | SDK 包轮询周期 |
-| `internal_key` | `""` | `X-Internal-Key` 共享密钥，与 HRPAuth 侧配置一致；**留空 = fail-closed**，`/api/*` 一律 401 |
+| `internal_key` | `""` | `X-Internal-Key` 共享密钥，与 Armorial 侧配置一致；**留空 = fail-closed**，`/api/*` 一律 401 |
 
 ### build
 
@@ -112,8 +112,8 @@ curl -s -H "X-Internal-Key: <internal_key>" http://127.0.0.1:2704/api/build/stat
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| `/api/*` 全部 401 | `internal_key` 留空（fail-closed）或请求未带 `X-Internal-Key` | 配置密钥并与调用方（HRPAuth）一致 |
-| 轮询不到 SDK 包 | HRPAuth 核心不可达或服务凭据错 | 核对 `hrpauth.*`；本服务只认核心这一个来源 |
+| `/api/*` 全部 401 | `internal_key` 留空（fail-closed）或请求未带 `X-Internal-Key` | 配置密钥并与调用方（Armorial）一致 |
+| 轮询不到 SDK 包 | Armorial 核心不可达或服务凭据错 | 核对 `hrpauth.*`；本服务只认核心这一个来源 |
 | 构建失败且提示黑名单 | 依赖合并命中 `npm_blacklist` 包名 | 按提示移除冲突包（黑名单命中即拒绝，与 run_scripts 无关） |
 | 模板拉不下来 | `template_dir` 不存在且 Git 克隆失败 | 检查网络/URL，或手工准备本地检出 |
 | 产物已发布但站点没更新 | `serve_artifacts: false`，本服务不托管静态站 | 托管方（nginx 等）指向 `current` 软链产物 |

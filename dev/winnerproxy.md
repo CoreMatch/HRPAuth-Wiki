@@ -17,7 +17,7 @@ main.go              入口
 internal/
   cache/             内存缓存（大小与 TTL 由配置控制）
   handler/           请求处理器
-  hrpauth/           HRPAuth 凭据换取/校验客户端
+  hrpauth/           Armorial 凭据换取/校验客户端
   proxy/             分发与上游转发
   router/            路由绑定
 sdk/、sdkdata.go、sdk_upload.go    SDK 包数据与上传
@@ -37,7 +37,7 @@ go test ./...
 - Mojang 官方上游（`upstreams.official`，默认 https://api.minecraftservices.com）**仅在 hasJoined 阶段**使用，`enabled` 开关控制是否启用。
 - HRPAuth-Yggdrasil-API 上游（`upstreams.hrpauth`）承担其余转发；与 `hrpauth` 段共用同一对 client 凭据变量。
 - 凭据路径与 HASkinProxy 同构：super 凭据启动换取低权限客户端（client_id = presence 名 WinnerProxy），专用凭据走幂等校验。
-- 对外行为契约以 HA-Contract 为准（`docs/api/` 与错误码表）。
+- 对外行为契约以 Armorial Contract 为准（`docs/api/` 与错误码表）。
 
 ## 数据形态
 

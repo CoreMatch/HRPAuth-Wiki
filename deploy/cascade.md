@@ -19,7 +19,7 @@ Cascade 是 Rusted Warfare 群组服务器的边缘反向代理：玩家唯一�
 | 运行时 | Go 1.26.10+ 构建的静态二进制（`go.mod`）；数据库迁移 SQL 已 `go:embed` 编入二进制（`internal/database/migrate.go::migrationsFS`），任意工作目录可启动，无需随附迁移目录 |
 | 数据库 | SQLite（默认，`db_path`）或 MySQL（`mysql_dsn`） |
 | Redis | 可选（玩家认证缓存：`redis_addr` 等） |
-| HRPAuth | 可选（玩家认证/认领：`hrpauth_url` 等） |
+| Armorial | 可选（玩家认证/认领：`hrpauth_url` 等） |
 | 后端 | 必需：至少一个 Avalon（`backends` + `default_backend_id`，见 [Avalon 部署者文档](./avalon.md)） |
 | 签名密钥 | 必需：Ed25519 PKCS#8 私钥（`proxy_private_key_path`，权限 0600） |
 | mTLS 材料 | 仅当存在 `pinned`/`mtls` 传输的后端：`backend_client_cert` / `backend_client_key`（0600）/ `backend_ca_pool` |
@@ -66,9 +66,9 @@ cp config.example.yaml config.yaml
 
 | 键 | 默认 | 作用 |
 |---|---|---|
-| `hrpauth_url` / `hrpauth_client_id` / `hrpauth_client_secret` | — | 可选，HRPAuth 玩家认证/认领 |
-| `hrpauth_service_name` | "Cascade" | HRPAuth 服务名 |
-| `hrpauth_relay_prefix` | "/rusted-warfare" | HRPAuth relay 前缀 |
+| `hrpauth_url` / `hrpauth_client_id` / `hrpauth_client_secret` | — | 可选，Armorial 玩家认证/认领 |
+| `hrpauth_service_name` | "Cascade" | Armorial 服务名 |
+| `hrpauth_relay_prefix` | "/rusted-warfare" | Armorial relay 前缀 |
 | `presence_ttl_sec` | 120 | presence TTL |
 | `register_timeout_sec` | 5 | 注册超时 |
 | `read_timeout_sec` | 90 | 读超时 |
@@ -145,4 +145,4 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/readyz
 | 启动失败，提示传输冲突 | `tls_mode: plain` 与 `trust_mode: pinned` 冲突，或 control_url 协议与传输不匹配（mtls 须 https、plain 须 http） | 按后端实际信任档改 `trust_mode`/`tls_mode`/URL 协议 |
 | `/goto` 被拒绝 | `public_game_host` 留空（整体关闭大厅跳转） | 配置公网可解析可达的 `public_game_host` |
 | 跳转后客户端连不上 | 目标后端未声明 `jump_port`，或该端口未对公网开放 | 后端配 `jump_port`，防火墙放行 |
-| 管理面错误码看不懂 | 错误信封 `{success,code,message,meta.request_id}`：`lower_snake` 码在 HA-Contract `docs/api/error-codes.md` 登记；后端 `UPPER_SNAKE` 码原样透传 | 按码查契约 |
+| 管理面错误码看不懂 | 错误信封 `{success,code,message,meta.request_id}`：`lower_snake` 码在 Armorial Contract `docs/api/error-codes.md` 登记；后端 `UPPER_SNAKE` 码原样透传 | 按码查契约 |

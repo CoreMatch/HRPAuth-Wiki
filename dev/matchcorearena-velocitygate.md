@@ -46,5 +46,5 @@ mvn test         # 30 例：路由路径 12、MCA 客户端 14、配置解析 4
 
 ## 契约与验证边界
 
-- 对外契约：HA-Contract `docs/api/openapi/matchcorearena-business.yaml`（assignment 端点 1.9.1、房间层 1.10.0）。
+- 对外契约：Armorial Contract `docs/api/openapi/matchcorearena-business.yaml`（assignment 端点 1.9.1、房间层 1.10.0）。
 - 已验证：单元测试 30 例全绿；真实 Velocity 3.4.0 联调四场景（留大厅 / 转向 / no_room_available / 拒连分类）。尚未验证：真实 Minecraft 客户端（含 1.20.2+ 配置阶段）、真实 BedwarsRel 子服、生产 MCA 实例——首次上机仍需人工观察日志。

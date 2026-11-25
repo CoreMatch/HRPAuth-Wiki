@@ -20,7 +20,7 @@ MatchCoreArena-Server（MCA-Server）是竞技平台的匹配与结算核心：�
 | Go | 仅源码构建需要：`go.mod` 声明 `go 1.26.10` |
 | MySQL | 必需，唯一事实源（启动硬依赖：连接或 Ping 失败即退出）。字符集 utf8mb4 / InnoDB；最低版本仓库未声明 |
 | Redis | 必需，仅作缓存（启动硬依赖：连接失败即退出）。最低版本仓库未声明 |
-| HRPAuth | 必需，唯一出站运行时依赖：启动期校验可达；玩家令牌校验、参与者 UUID→uid 解析都走它 |
+| Armorial | 必需，唯一出站运行时依赖：启动期校验可达；玩家令牌校验、参与者 UUID→uid 解析都走它 |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，Cupbearer 编排器对其只读） |
 
 数据库与库名按配置准备（默认库名 `matchcorearena`）；**表结构不用手工建**——启动时版本化迁移自动执行（咨询锁串行化，幂等可重入）。
@@ -55,7 +55,7 @@ cd /www/wwwroot/mca      # 生产在位目录（deploy-manifest install.root）
 ./mca
 ```
 
-启动顺序（任一硬依赖失败即退出）：加载并迁移配置 → 执行数据库迁移 → Ping MySQL → 连 Redis → 校验 HRPAuth 可达 → 加载 `tokens.yaml` → 注册路由 → 启动匹配引擎 → 监听 `:9178`。
+启动顺序（任一硬依赖失败即退出）：加载并迁移配置 → 执行数据库迁移 → Ping MySQL → 连 Redis → 校验 Armorial 可达 → 加载 `tokens.yaml` → 注册路由 → 启动匹配引擎 → 监听 `:9178`。
 
 生产形态按 `deploy-manifest.yaml`：二进制在位 `/www/wwwroot/mca/mca`，进程归 aapanel 管理，配置在位 `/www/wwwroot/mca/config/config.yaml`。不要用 Cupbearer 编排器去动它（`manager: aapanel` 的项目一律 foreign 只读）。
 
@@ -67,7 +67,7 @@ cd /www/wwwroot/mca      # 生产在位目录（deploy-manifest install.root）
 
 ## 服务凭据（tokens.yaml）
 
-高权限服务凭据独立于 HRPAuth 用户体系，供系统间调用与游戏服上报：
+高权限服务凭据独立于 Armorial 用户体系，供系统间调用与游戏服上报：
 
 ```yaml
 tokens:
@@ -121,9 +121,9 @@ tokens:
 
 | 键 | 默认 | 作用 |
 |---|---|---|
-| `hrpauth.base_url` | 无（必填） | HRPAuth 根地址，如 `http://localhost:2778`；所有 OAuth2 端点调用与令牌校验的根 |
+| `hrpauth.base_url` | 无（必填） | Armorial 根地址，如 `http://localhost:2778`；所有 OAuth2 端点调用与令牌校验的根 |
 | `hrpauth.public_client_id` | `hrpauth-webui` | OAuth2 public client_id（refresh_token 等第一方流程） |
-| `hrpauth.service_client_id` | `""` | ops 级服务凭据（client_credentials），用于结算时解析参与者 UUID→uid；注入 HRPAuth 内置 super client 凭据。留空不挡启动，但结算上报以类型化错误失败 |
+| `hrpauth.service_client_id` | `""` | ops 级服务凭据（client_credentials），用于结算时解析参与者 UUID→uid；注入 Armorial 内置 super client 凭据。留空不挡启动，但结算上报以类型化错误失败 |
 | `hrpauth.service_client_secret` | `""` | 同上 |
 | `maintenance_token` | 首次创建自动生成 64 位随机十六进制 | 运维超级凭据，拥有所有权限 |
 | `tokens_path` | `config/tokens.yaml` | 服务凭据文件路径（`MCA_TOKENS_PATH` 环境变量优先级更高） |
@@ -208,7 +208,7 @@ curl -s -H "Authorization: Bearer <token>" http://127.0.0.1:9178/api/metrics
 # 队伍形状二选一：teams（每队带 result）或 winner_team + loser_teams
 curl -s -X POST -H "Authorization: Bearer <match-reporter token>" \
   -H "Content-Type: application/json" http://127.0.0.1:9178/api/matches \
-  -d '{"match_type":"1v1","source":"virtual","game_id":"smoke-test-1","teams":[{"team_id":"A","result":"win","initial_count":1,"alive_count":1,"members":[{"uuid":"<HRPAuth 中存在的玩家 UUID>"}]},{"team_id":"B","result":"lose","initial_count":1,"alive_count":0,"members":[{"uuid":"<另一名玩家 UUID>"}]}],"started_at":"2026-11-08T10:00:00Z","finished_at":"2026-11-08T10:05:00Z"}'
+  -d '{"match_type":"1v1","source":"virtual","game_id":"smoke-test-1","teams":[{"team_id":"A","result":"win","initial_count":1,"alive_count":1,"members":[{"uuid":"<Armorial 中存在的玩家 UUID>"}]},{"team_id":"B","result":"lose","initial_count":1,"alive_count":0,"members":[{"uuid":"<另一名玩家 UUID>"}]}],"started_at":"2026-11-08T10:00:00Z","finished_at":"2026-11-08T10:05:00Z"}'
 # 期望 201：{"success":true,"message":"对战结果已记录",...}
 # 同一 game_id 原样重发返回 200（幂等重放，不重复结算）；
 # 同一 game_id 换载荷返回 409 mca_game_id_conflict
@@ -225,13 +225,13 @@ curl -s -X POST -H "Authorization: Bearer <match-reporter token>" \
 | 启动失败"加载应用配置失败"，提示 version 高于当前支持版本 | 配置文件 `version` 超前于二进制 | 升级二进制，或将 version 改回二进制支持的值 |
 | 启动失败"数据库 Ping 失败" / "数据库迁移失败" | MySQL 不可达、凭据错、库不存在 | 核对 `database.*`；先手工建库 |
 | 启动失败"Redis 连接失败" | Redis 不可达/密码错 | 核对 `redis.*` |
-| 启动失败"初始化 HRPAuth 客户端失败" | `auth.hrpauth.base_url` 不可达 | HRPAuth 是唯一出站依赖，先确保它在运行 |
-| 启动日志警告 `service_client_id/secret 未配置` | ops 服务凭据留空 | 注入 HRPAuth super client 凭据；否则对局上报时参与者身份解析失败（`oauth_hrpauth_down`） |
+| 启动失败"初始化 Armorial 客户端失败" | `auth.hrpauth.base_url` 不可达 | Armorial 是唯一出站依赖，先确保它在运行 |
+| 启动日志警告 `service_client_id/secret 未配置` | ops 服务凭据留空 | 注入 Armorial super client 凭据；否则对局上报时参与者身份解析失败（`oauth_hrpauth_down`） |
 | 上报 401 `oauth_token_expired` | 玩家令牌过期 | 客户端走 `POST /api/auth/refresh` |
 | 上报 403 `oauth_insufficient_scope` | 非 OPS 凭据，或缺 `match:report` scope | 换 `match-reporter` 令牌 |
 | 上报 409 `mca_game_id_conflict` | 同一 `game_id` 已存在且载荷不一致 | 查 `GET /api/matches/rejections` 与 `GET /api/matches/by-game-id/:game_id` 定位冲突源 |
 | 上报 400 `mca_report_inconsistent` | `duration_seconds` 与起止时刻差不一致等载荷矛盾 | 修正上报载荷 |
-| 上报 404 `mca_user_not_found` | 参与者 UUID 在 HRPAuth 中不存在 | 核对该玩家是否注册 |
-| 上报 502 `oauth_hrpauth_down` | HRPAuth 不可达或服务凭据失效 | 恢复 HRPAuth / 核对服务凭据 |
+| 上报 404 `mca_user_not_found` | 参与者 UUID 在 Armorial 中不存在 | 核对该玩家是否注册 |
+| 上报 502 `oauth_hrpauth_down` | Armorial 不可达或服务凭据失效 | 恢复 Armorial / 核对服务凭据 |
 | `tokens.yaml` 解析失败告警 | 文件 YAML 非法 | 修正语法；期间所有服务凭据不可用（上报 401），玩家令牌不受影响 |
 | 启动日志降级警告（schema_migrations 未知版本） | 曾运行更高版本二进制做过迁移 | 预期行为，迁移只增不删，无需处理 |

@@ -39,4 +39,4 @@ go test ./...
 - `GET /textures/{hash}`：纹理转发。
 - 缓存：freecache 内存级，`profile_ttl`（默认 3600s）与 `texture_ttl`（默认 86400s）分级，`max_size_mb` 封顶。
 - 凭据：启动时按 `upstream.client_id/client_secret` 的填写形态决定路径——super 凭据走 `POST /oauth/register` 换取低权限客户端，专用凭据走幂等校验（详见部署者文档的配置表）。
-- presence：`presence.name`（HASkinProxy）自报，供 HRPAuth 服务发现；`sdk.enabled` 控制 SDK 包集成。
+- presence：`presence.name`（HASkinProxy）自报，供 Armorial 服务发现；`sdk.enabled` 控制 SDK 包集成。

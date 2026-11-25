@@ -10,7 +10,7 @@ updatedAt: 2026-11-12
 
 # Grail — 部署
 
-HA 生态的产物分发上游：**原站（Root）+ 分级镜像**的混合形态，为各服务提供 `ci` / `candidate` / `release` 三渠道的**签名**发布物。设计依据：`GRAIL-DESIGN-20261112.md`（R2 定稿）；接口契约：HA-Contract `docs/api/openapi/grail.yaml`。
+Armorial 生态的产物分发上游：**原站（Root）+ 分级镜像**的混合形态，为各服务提供 `ci` / `candidate` / `release` 三渠道的**签名**发布物。设计依据：`GRAIL-DESIGN-20261112.md`（R2 定稿）；接口契约：Armorial Contract `docs/api/openapi/grail.yaml`。
 
 ## 角色定位
 

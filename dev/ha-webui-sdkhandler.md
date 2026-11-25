@@ -10,7 +10,7 @@ updatedAt: 2026-11-12
 
 # HA-WebUI-SDKHandler — 开发
 
-WebUI 聚合构建服务（内部回环）：轮询 HRPAuth 的 SDK 源码头包，注入 HRPAuth-WebUI 前端模板，编译聚合前端，把静态产物发布到固定目录。无数据库、无 Redis；上游依赖仅 HRPAuth 核心。
+WebUI 聚合构建服务（内部回环）：轮询 Armorial 的 SDK 源码头包，注入 HRPAuth-WebUI 前端模板，编译聚合前端，把静态产物发布到固定目录。无数据库、无 Redis；上游依赖仅 Armorial 核心。
 
 ## 代码结构
 
@@ -37,7 +37,7 @@ go test ./...                    # 含 internal key 鉴权与静态托管两组�
 
 ## 管线语义
 
-- **SDK 来源唯一**：只从 HRPAuth `GET /services/sdk-packages` 拉取（OAuth2 Bearer），下载后本地算 sha256（仓内 knowledge/0005）。
+- **SDK 来源唯一**：只从 Armorial `GET /services/sdk-packages` 拉取（OAuth2 Bearer），下载后本地算 sha256（仓内 knowledge/0005）。
 - **注入覆盖 `src/generated`**：每次构建全量执行——只读模板复制到 work 目录，SDK 包解压到 `src/generated/services/<name>/`，校验 manifest、合并 dependencies，生成 `sdk-manifest.ts` 与 `sdk-routes.tsx`（routes 转 React lazy route）（仓内 knowledge/0002、`internal/inject/`）。
 - **发布非原子**：固定产物目录，remove-then-rename 替换，删除与改名之间存在已知服务间隙（仓内 knowledge/0004）。
 - 构建策略偏差（构建工具链与模板假设）见仓内 knowledge/0003；state 包未跟踪缺陷见 knowledge/0006。
@@ -50,5 +50,5 @@ go test ./...                    # 含 internal key 鉴权与静态托管两组�
 
 ## 契约
 
-- 对外契约：HA-Contract `docs/api/openapi/webui-sdkhandler.yaml`。
-- SDK 包格式与聚合管线：HA-Contract `docs/dev/HRPAuth/sdk-package.md`；微服务扩展层（presence / sdk-packages）：`docs/dev/HRPAuth/microservices.md`。
+- 对外契约：Armorial Contract `docs/api/openapi/webui-sdkhandler.yaml`。
+- SDK 包格式与聚合管线：Armorial Contract `docs/dev/HRPAuth/sdk-package.md`；微服务扩展层（presence / sdk-packages）：`docs/dev/HRPAuth/microservices.md`。

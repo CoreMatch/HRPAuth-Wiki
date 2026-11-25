@@ -40,7 +40,7 @@ build/         get-dependencies.sh（把自备 CraftBukkit jar 装入本地 Mave
 
 ### 投递与失败分类
 
-单守护线程 worker 排空有界队列（`retry.queue-capacity`，溢出丢弃并告警），POST HA-Contract v1.4.0 统一形状载荷（`MatchReportPayload.java::toJson`）：`match_type`、`teams`（每队 `result` win/lose/draw）、`duration_seconds`（与时间戳同源秒值，防 400 不一致拒绝）、`map_name`、`game_id`、`source: "game"`、RFC 3339 UTC 时间戳。
+单守护线程 worker 排空有界队列（`retry.queue-capacity`，溢出丢弃并告警），POST Armorial Contract v1.4.0 统一形状载荷（`MatchReportPayload.java::toJson`）：`match_type`、`teams`（每队 `result` win/lose/draw）、`duration_seconds`（与时间戳同源秒值，防 400 不一致拒绝）、`map_name`、`game_id`、`source: "game"`、RFC 3339 UTC 时间戳。
 
 `ReportClassifier.java::classifyStatus`：
 

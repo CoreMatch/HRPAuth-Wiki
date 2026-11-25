@@ -5,8 +5,8 @@ import { defineConfig } from 'vitepress'
 // 不存在第二份内容副本。
 export default defineConfig({
   lang: 'zh-CN',
-  title: 'HRPAuth-Wiki',
-  description: '项目生态的 Wiki：每个项目现在怎么部署、怎么开发',
+  title: 'Armorial Wiki',
+  description: 'Armorial 生态的 Wiki：每个项目现在怎么部署、怎么开发',
   cleanUrls: true,
   lastUpdated: true,
   srcDir: '.',
@@ -24,7 +24,7 @@ export default defineConfig({
         locales: {
           root: {
             translations: {
-              button: { buttonText: '搜索', buttonAriaText: '搜索' },
+              button: { buttonText: '搜索' },
               modal: {
                 displayDetails: '显示详细列表',
                 resetButtonTitle: '清空查询',
@@ -44,7 +44,7 @@ export default defineConfig({
     // 主导航只保留首页。knowledge/ 是仓库内部记录，不进主导航，
     // 可经直接 URL（/knowledge/）与站内搜索访问。
     nav: [
-      { text: '首页', link: '/' }
+      { text: 'Armorial Wiki', link: '/' }
     ],
     // 两条轨道物理分开：/deploy/ 侧边栏只列部署者文档，/dev/ 只列开发者
     // 文档；互不出现对方条目。页脚 prev/next 跟随当前侧边栏，不跨轨。
@@ -60,7 +60,7 @@ export default defineConfig({
             { text: 'RW-Mod-Injector（玩家使用）', link: '/deploy/rw-mod-injector' },
             { text: 'HA-Cupbearer', link: '/deploy/ha-cupbearer' },
             { text: 'HA-Services-MaintenanceView', link: '/deploy/ha-services-maintenanceview' },
-            { text: 'HRPAuth', link: '/deploy/hrpauth' },
+            { text: 'Armorial', link: '/deploy/armorial' },
             { text: 'HASkinProxy', link: '/deploy/haskinproxy' },
             { text: 'WinnerProxy', link: '/deploy/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/deploy/matchcorearena-server' },
@@ -85,7 +85,7 @@ export default defineConfig({
             { text: 'RW-Mod-Injector 回归脚本', link: '/dev/rw-mod-injector-regression' },
             { text: 'HA-Cupbearer', link: '/dev/ha-cupbearer' },
             { text: 'HA-Services-MaintenanceView', link: '/dev/ha-services-maintenanceview' },
-            { text: 'HRPAuth', link: '/dev/hrpauth' },
+            { text: 'Armorial', link: '/dev/armorial' },
             { text: 'HASkinProxy', link: '/dev/haskinproxy' },
             { text: 'WinnerProxy', link: '/dev/winnerproxy' },
             { text: 'MatchCoreArena-Server', link: '/dev/matchcorearena-server' },

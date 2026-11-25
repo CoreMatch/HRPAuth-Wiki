@@ -10,7 +10,7 @@ updatedAt: 2026-11-12
 
 # Grail — 开发
 
-产物分发上游（原站 + 分级镜像）的实现说明。契约单一事实源：HA-Contract `docs/api/openapi/grail.yaml`（METHOD+path 双向防漂移，路由来源文件 `internal/server/router.go`）；语义单一事实源：`GRAIL-DESIGN-20261112.md`（R2）。
+产物分发上游（原站 + 分级镜像）的实现说明。契约单一事实源：Armorial Contract `docs/api/openapi/grail.yaml`（METHOD+path 双向防漂移，路由来源文件 `internal/server/router.go`）；语义单一事实源：`GRAIL-DESIGN-20261112.md`（R2）。
 
 ## 代码结构
 
@@ -110,6 +110,6 @@ docker build -t grail:local .
 
 ## 契约与防漂移
 
-- 新增/修改路由：先改 HA-Contract `grail.yaml`（契约先行），再改 `internal/server/router.go`；
+- 新增/修改路由：先改 Armorial Contract `grail.yaml`（契约先行），再改 `internal/server/router.go`；
 - 本地联查：`HA-Contract/scripts/check-openapi-validity.sh` + `check-business-api-drift.sh`（均带 `--self-test`）；
 - 提交纪律：build/vet/test -race 全绿后，特性分支 `--no-ff` 合并再推送。

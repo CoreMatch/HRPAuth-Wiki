@@ -78,7 +78,7 @@ go test ./...          # 提交前全绿，需要时追加 -race
 
 ## 平台镜像：构建与发布
 
-平台 10 个服务镜像已发布到 Docker Hub 命名空间 `limeight/ha-*`（HRPAuth、HRPAuth-Yggdrasil-API、HASkinLib、HASkinProxy、WinnerProxy、MatchCoreArena-Server、HA-WebUI-SDKHandler、HA-Cupbearer、HA-Services-MaintenanceView、BS2HA），全部为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list）。tag 约定 `<版本>-<短SHA>`（无版本号的用纯短 SHA，可回追 commit），并列 `latest`；**生效引用是清单 `container.image.digest` 钉住的摘要，tag 只是可读别名**。
+平台 10 个服务镜像已发布到 Docker Hub 命名空间 `limeight/ha-*`（Armorial、HRPAuth-Yggdrasil-API、HASkinLib、HASkinProxy、WinnerProxy、MatchCoreArena-Server、HA-WebUI-SDKHandler、HA-Cupbearer、HA-Services-MaintenanceView、BS2HA），全部为 `linux/amd64` + `linux/arm64` 多架构镜像（OCI image index / manifest list）。tag 约定 `<版本>-<短SHA>`（无版本号的用纯短 SHA，可回追 commit），并列 `latest`；**生效引用是清单 `container.image.digest` 钉住的摘要，tag 只是可读别名**。
 
 ### 构建方式
 

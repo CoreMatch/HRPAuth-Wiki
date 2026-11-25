@@ -10,7 +10,7 @@ updatedAt: 2026-11-24
 
 # HASkinLib — 部署
 
-HASkinLib 是生态的皮肤库服务：纹理上传、预览图生成、按哈希拉取原文件、个人材质管理。接口契约在 HA-Contract（`docs/api/openapi/haskinlib-business.yaml`）与本仓 `docs/skinlib-api.md`。
+HASkinLib 是生态的皮肤库服务：纹理上传、预览图生成、按哈希拉取原文件、个人材质管理。接口契约在 Armorial Contract（`docs/api/openapi/haskinlib-business.yaml`）与本仓 `docs/skinlib-api.md`。
 
 ## 运行前提
 
@@ -19,7 +19,7 @@ HASkinLib 是生态的皮肤库服务：纹理上传、预览图生成、按哈�
 | Go | 源码构建需要：`go.mod` 声明 `go 1.26.10`；或用已发布的 Docker 镜像（见下） |
 | MySQL | 必需，启动硬依赖（迁移失败即退出）；最低版本仓库未声明 |
 | Redis | **无依赖** |
-| HRPAuth 核心 | 运行期经 `core_api` 调用（如令牌校验）；**非启动硬依赖**——核心不在也能启动，相关端点调用会失败 |
+| Armorial 核心 | 运行期经 `core_api` 调用（如令牌校验）；**非启动硬依赖**——核心不在也能启动，相关端点调用会失败 |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，编排器只读） |
 
 清单声明的服务版本为 `1.3.0`；配置 schema 仍为 v7。
@@ -75,7 +75,7 @@ docker run -d --name haskinlib -p 2701:2701 \
 
 | 键 | 默认 | 作用 |
 |---|---|---|
-| `base_url` | `http://127.0.0.1:2778` | HRPAuth 核心地址 |
+| `base_url` | `http://127.0.0.1:2778` | Armorial 核心地址 |
 | `client_id` / `client_secret` | `""` | 服务凭据；留空时依赖核心的端点不可用 |
 
 ### textures
@@ -132,5 +132,5 @@ curl -s http://127.0.0.1:2701/texture/listpreview
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | 启动失败于数据库迁移 | MySQL 不可达/凭据错/库不存在 | 核对 `database.*`，先建库 |
-| 上传/删除/个人列表报错，健康探针正常 | HRPAuth 核心不可达或 `core_api` 凭据未配（这些端点运行期依赖核心） | 恢复核心、补齐凭据；`/health` 与 `listpreview` 不受影响 |
+| 上传/删除/个人列表报错，健康探针正常 | Armorial 核心不可达或 `core_api` 凭据未配（这些端点运行期依赖核心） | 恢复核心、补齐凭据；`/health` 与 `listpreview` 不受影响 |
 | 上传被拒 | 超出 `max_upload_bytes` / 命中限流 | 按响应错误码核对；必要时调整 `textures.*` 上限 |

@@ -19,7 +19,7 @@ main.go              入口：CORS → 各控制器 → 路由
 controllers/         upload、listpreview、previewfile、pulltexture、deletetexture、profile、auth
 services/            上传校验、图片管线、删除等业务逻辑
 models/、database/   纹理元数据模型与迁移
-clients/             core_client.go：HRPAuth HTTP API 客户端
+clients/             core_client.go：Armorial HTTP API 客户端
 config/              配置加载与迁移（config.go、migrations.go，均有测试）
 docs/skinlib-api.md  仓内接口参考
 ```
@@ -44,7 +44,7 @@ go test ./...
 
 ## 鉴权
 
-经 HRPAuth HTTP API，不共享 Go 库：认证路由提取 Bearer token，调 `POST {core_api.base_url}/internal/verify-token`（`controllers/auth.go::AuthenticateUser`、`clients/core_client.go::VerifyToken`）；服务自身对核心用 OAuth2 client_credentials。
+经 Armorial HTTP API，不共享 Go 库：认证路由提取 Bearer token，调 `POST {core_api.base_url}/internal/verify-token`（`controllers/auth.go::AuthenticateUser`、`clients/core_client.go::VerifyToken`）；服务自身对核心用 OAuth2 client_credentials。
 
 ## 存储与图片管线
 
@@ -56,4 +56,4 @@ go test ./...
 ## 分工边界与契约
 
 - Minecraft 协议面归 HRPAuth-Yggdrasil-API，CustomSkinLoader 转换归 HASkinProxy；往本仓加 Yggdrasil 路由违反边界（仓内 knowledge/0005）。
-- 对外契约：HA-Contract `docs/api/openapi/haskinlib-business.yaml`；契约缺失时在 HA-Contract 侧补，契约优先于代码表现（仓内 knowledge/0007）。
+- 对外契约：Armorial Contract `docs/api/openapi/haskinlib-business.yaml`；契约缺失时在 Armorial Contract 侧补，契约优先于代码表现（仓内 knowledge/0007）。

@@ -10,15 +10,15 @@ updatedAt: 2026-11-24
 
 # HASkinProxy — 部署
 
-轻量代理：把 Yggdrasil API 逻辑转换为 CustomSkinLoader（CSL）兼容协议，衔接 Yggdrasil 兼容认证服务（如 HRPAuth + Yggdrasil API）与使用 CSL 的 Minecraft 客户端。转发的是标准 Yggdrasil 调用，因此兼容任何实现 Yggdrasil 协议的验证服务器。
+轻量代理：把 Yggdrasil API 逻辑转换为 CustomSkinLoader（CSL）兼容协议，衔接 Yggdrasil 兼容认证服务（如 Armorial + Yggdrasil API）与使用 CSL 的 Minecraft 客户端。转发的是标准 Yggdrasil 调用，因此兼容任何实现 Yggdrasil 协议的验证服务器。
 
 ## 运行前提
 
 | 项 | 要求 |
 |---|---|
 | 构建 | Go（`go.mod` 1.26.10） |
-| 上游 | 必需：Yggdrasil 兼容服务（生态内为 HRPAuth，`deploy-manifest.yaml` 依赖 hrpauth required） |
-| 凭据 | OAuth2 client_credentials 的 client_id / client_secret（与 HRPAuth 的 `service_clients` 种子同源） |
+| 上游 | 必需：Yggdrasil 兼容服务（生态内为 Armorial，`deploy-manifest.yaml` 依赖 hrpauth required） |
+| 凭据 | OAuth2 client_credentials 的 client_id / client_secret（与 Armorial 的 `service_clients` 种子同源） |
 | 数据库 / Redis | 无（内存缓存 freecache） |
 | 进程管理 | 面板管理（`manager: aapanel`，安装根 `/www/wwwroot/hasp`，二进制 `hasp`） |
 
@@ -42,8 +42,8 @@ go build -o build/hasp .   # 构建命令仓库未单独声明，产物路径按
 | 键 | 默认 | 作用 |
 |---|---|---|
 | `server.listen_addr` | ":2702" | 监听地址 |
-| `server.public_url` | — | 外部可达基础 URL（作为 HRPAuth relay 的转发源） |
-| `upstream.base_url` | — | HRPAuth 根地址；Yggdrasil 调用自动发往 `base_url + /yggdrasil-api` |
+| `server.public_url` | — | 外部可达基础 URL（作为 Armorial relay 的转发源） |
+| `upstream.base_url` | — | Armorial 根地址；Yggdrasil 调用自动发往 `base_url + /yggdrasil-api` |
 | `upstream.timeout` | 10 | 上游请求超时（秒） |
 | `upstream.client_id` / `upstream.client_secret` | — | OAuth2 凭据。v14 语义"填什么就按什么"：填 super 凭据 → 启动时经 `POST /oauth/register` 换取本服务低权限客户端（client_id = presence 名 HASkinProxy）；填专用低权限对 → 只做幂等校验 |
 | `cache.profile_ttl` | 3600 | 玩家信息缓存（秒） |
@@ -52,7 +52,7 @@ go build -o build/hasp .   # 构建命令仓库未单独声明，产物路径按
 | `presence.enabled` / `presence.name` / `presence.ttl_seconds` | true / HASkinProxy / 0 | presence 自报（0 = 永不过期） |
 | `sdk.enabled` | true | SDK 包集成 |
 
-配置重启生效；仓库未声明热加载机制。容器内配置由模板渲染，换取路径下写回不跨重启持久化（每次启动重新换取，HRPAuth get-or-create 保证 secret 稳定）。
+配置重启生效；仓库未声明热加载机制。容器内配置由模板渲染，换取路径下写回不跨重启持久化（每次启动重新换取，Armorial get-or-create 保证 secret 稳定）。
 
 ## 端口与暴露面
 
@@ -86,5 +86,5 @@ curl -s http://127.0.0.1:2702/<玩家名>.json
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | profile 查询 404 "user not found" | 上游查无此玩家 | 正常 miss，不是故障 |
-| 启动日志出现"种子跳过"类告警 | `client_secret` 填成了 super secret（HRPAuth 防呆：跳过种子条目） | 本服务会走自助注册拿独立 secret；或改用专用低权限凭据 |
-| 上游请求超时 | `upstream.timeout`（默认 10s）内 HRPAuth 未应答 | 检查上游健康与网络 |
+| 启动日志出现"种子跳过"类告警 | `client_secret` 填成了 super secret（Armorial 防呆：跳过种子条目） | 本服务会走自助注册拿独立 secret；或改用专用低权限凭据 |
+| 上游请求超时 | `upstream.timeout`（默认 10s）内 Armorial 未应答 | 检查上游健康与网络 |

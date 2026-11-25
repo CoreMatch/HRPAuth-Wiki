@@ -10,7 +10,7 @@ updatedAt: 2026-11-12
 
 # HRPAuth-Yggdrasil-API — 开发
 
-Yggdrasil 兼容 Minecraft 认证服务（2026-10 从 HRPAuth 核心拆分）：对游戏客户端与 authlib-injector 提供标准 Yggdrasil 协议面，游戏域数据归本服务所有，身份校验经 HRPAuth 核心完成。
+Yggdrasil 兼容 Minecraft 认证服务（2026-10 从 Armorial 核心拆分）：对游戏客户端与 authlib-injector 提供标准 Yggdrasil 协议面，游戏域数据归本服务所有，身份校验经 Armorial 核心完成。
 
 ## 代码结构
 
@@ -43,7 +43,7 @@ go test ./...
 - **Minecraft 1.19+ profile key**：`POST /minecraftservices/player/certificates`、`GET /minecraftservices/publickeys`（flag 开启后可用）。
 - `GET /health` 存活探针（不查库）；`POST /register`；`POST /api/profiles/minecraft` 批量档案；`GET /mojang/profile/:uuid`、`GET /texture/mojang/:uuid`。
 
-## 与 HRPAuth 核心的集成
+## 与 Armorial 核心的集成
 
 - 启动凭据解析（`main.go::resolveCoreCredentials`）：`core_api.client_id/client_secret` 若是核心内建 super 客户端，经 `POST /oauth/register`（RFC 7591）换取本服务低权限客户端并丢弃 super 密钥；已是专用客户端则幂等校验复用。任何失败中止启动。
 - 认证链：`services/auth_service.go::VerifyCredentials` 先查本地 proxy accounts，再查核心（`/internal/verify-credentials`、`/internal/verify-token`）——核心不可达时仅本地代理账号可登录（standalone 降级）。
@@ -55,6 +55,6 @@ go test ./...
 
 ## 契约与边界
 
-- 对外契约：HA-Contract `docs/api/openapi/hrpauth-yggdrasil-business.yaml`；`/health` 等端点注释逐条引用。
+- 对外契约：Armorial Contract `docs/api/openapi/hrpauth-yggdrasil-business.yaml`；`/health` 等端点注释逐条引用。
 - 本服务**不托管皮肤库**：公开皮肤浏览在 WebUI 的 Skinlib 页（后端是 HASkinLib）；CSL 协议转换在 HASkinProxy。
 - 已知遗留（仓内 knowledge/0005）：git 历史中的旧密钥对与旧部署命令按已暴露处理；迁移版本高于最高内嵌迁移的数据库被 `EnsureMigrations` 钳到最高版。

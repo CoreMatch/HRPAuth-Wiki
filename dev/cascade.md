@@ -48,11 +48,11 @@ go test ./...
 
 ## 后端契约与传输推导
 
-- 契约权威：HA-Contract `docs/dev/Cascade/Cascade-Backend-v1.md` + `docs/api/openapi/cascade-backend-v1.yaml`。本仓不实现生产后端。
+- 契约权威：Armorial Contract `docs/dev/Cascade/Cascade-Backend-v1.md` + `docs/api/openapi/cascade-backend-v1.yaml`。本仓不实现生产后端。
 - 传输推导（契约 v1.2）：每后端 `trust_mode`（open/ip/pinned）声明后端信任档，`tls_mode`（auto/mtls/plain）决定是否覆盖；`auto` 按 trust_mode 推导（open/ip→plain，pinned→mtls），缺失或无法解析时按最安全可用档走 mTLS，失败即关闭，绝不静默降级明文。
 - 传输决定后校验 `control_url` 协议：mtls 必须 `https://`，plain 必须 `http://`。
 - 身份：代理三档都照常签发 JWT（`proxy_issuer`/`proxy_key_id`/Ed25519），后端按档位决定是否验签；会话绑定走控制面 `PUT /v1/sessions/{sid}/identity`（jti 一次性消费）。
-- 管理面错误信封：`{"success":false,"code":...,"message":...,"meta":{"request_id":...}}`；`lower_snake` 稳定码登记于 HA-Contract `docs/api/error-codes.md`，后端 `UPPER_SNAKE` 码原样透传。
+- 管理面错误信封：`{"success":false,"code":...,"message":...,"meta":{"request_id":...}}`；`lower_snake` 稳定码登记于 Armorial Contract `docs/api/error-codes.md`，后端 `UPPER_SNAKE` 码原样透传。
 
 ## 数据形态与迁移
 

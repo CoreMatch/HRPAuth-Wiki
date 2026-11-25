@@ -9,7 +9,7 @@
 - [HA-Cupbearer](./ha-cupbearer.md)——deploy-manifest 契约、编排语义锚点、平台镜像构建与发布（多架构 / QEMU / list digest）
 - [Grail](./grail.md)——内容寻址存储与签名链、规范取件 URL、同步协议、鉴权分层与兜底限制
 - [HA-Services-MaintenanceView](./ha-services-maintenanceview.md)——编排面代理、可用性判定、会话模型
-- [HRPAuth](./hrpauth.md)——启动链、OAuth2 扩展点、配置迁移链
+- [Armorial](./armorial.md)——启动链、OAuth2 扩展点、配置迁移链
 - [HASkinProxy](./haskinproxy.md)——CSL 路由、缓存与上游集成
 - [WinnerProxy](./winnerproxy.md)——按账号来源的分发器设计
 - [MatchCoreArena-Server](./matchcorearena-server.md)——匹配队列与成局、加权 Elo 评分模型、上报契约、schema 迁移

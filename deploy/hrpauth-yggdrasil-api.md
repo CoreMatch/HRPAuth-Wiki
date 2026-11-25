@@ -10,7 +10,7 @@ updatedAt: 2026-11-24
 
 # HRPAuth-Yggdrasil-API — 部署
 
-HRPAuth-Yggdrasil-API 是 HRPAuth 生态的 Yggdrasil 兼容 Minecraft 认证服务：对游戏客户端提供标准 Yggdrasil 协议面（兼容 authlib-injector），账号校验与生态集成对接运行中的 HRPAuth 核心。
+HRPAuth-Yggdrasil-API 是 Armorial 生态的 Yggdrasil 兼容 Minecraft 认证服务：对游戏客户端提供标准 Yggdrasil 协议面（兼容 authlib-injector），账号校验与生态集成对接运行中的 Armorial 核心。
 
 > **1.3.0 转折点**：这是最后一个将“server owner 自行搭建 HA”作为默认路径的版本。后续版本拟将维护者运营的公共 HA 作为一等接入选项，重点改善非站长 server owner 的接入体验；此处仅表达设计意图，不代表弃用自建、承诺改变默认策略或给出时间表。
 
@@ -21,7 +21,7 @@ HRPAuth-Yggdrasil-API 是 HRPAuth 生态的 Yggdrasil 兼容 Minecraft 认证服
 | Go | 源码构建需要：`go.mod` 声明 `go 1.26.10`；或用 Docker |
 | MySQL | 必需（启动硬依赖）；**先建库建用户**，表在启动时自动创建 |
 | Redis | 必需 |
-| HRPAuth 核心 | 配置了 `core_api` 凭据时启动期必需（启动期凭据解析任何失败即中止）；运行期常规用户认证与 WebUI 集成也必需。只有 `core_api` 凭据留空时才可无核心启动，此时仅内部登记的代理账号可认证 |
+| Armorial 核心 | 配置了 `core_api` 凭据时启动期必需（启动期凭据解析任何失败即中止）；运行期常规用户认证与 WebUI 集成也必需。只有 `core_api` 凭据留空时才可无核心启动，此时仅内部登记的代理账号可认证 |
 | 进程监督 | 生产声明为 `manager: aapanel`（面板管理，编排器只读） |
 
 ## 从零部署（二进制）
@@ -58,11 +58,11 @@ docker run -d --name yggdrasil-api \
 
 | 字段 | 含义 |
 |---|---|
-| `core_api.base_url` | HRPAuth 核心地址，如 `http://localhost:2778` |
+| `core_api.base_url` | Armorial 核心地址，如 `http://localhost:2778` |
 | `core_api.client_id` / `core_api.client_secret` | 核心服务 API 的 OAuth2 凭据（与 MCA-Server 的 `service_client_*` 同源：内置 super client） |
 | `database.host` / `db_name` / `user` / `password` | MySQL 连接（库必须已存在）；`port` 为 0 时端口内联在 host 里 |
 | `redis.host` / `redis.port` | Redis 连接 |
-| `microservice.relay_url` | 本服务从 HRPAuth 核心可达的 URL |
+| `microservice.relay_url` | 本服务从 Armorial 核心可达的 URL |
 | `callback.url` | 纹理 URL 使用的公网基址；留空则从核心站点元数据推导 |
 
 其余段（默认值见仓内 `config.yaml.example`）：
@@ -95,7 +95,7 @@ docker run -d --name yggdrasil-api \
 - **启动/停止**：面板形态经 aapanel；独立形态直接运行二进制。数据库迁移与配置迁移都在启动时自动执行。
 - **升级**：替换二进制重启；`./storage`、`config.yaml` 与密钥对保留。
 - **回滚**：换回旧二进制。配置版本高于旧程序支持的主版本时启动拒绝（同主版本内自动迁移）。
-- 启动时本服务会把内嵌的 WebUI SDK 包上传到 HRPAuth 核心（SDK 包格式见 HA-Contract `docs/dev/HRPAuth/sdk-package.md`）。
+- 启动时本服务会把内嵌的 WebUI SDK 包上传到 Armorial 核心（SDK 包格式见 Armorial Contract `docs/dev/HRPAuth/sdk-package.md`）。
 
 ## 验证
 
@@ -117,8 +117,8 @@ curl -s http://127.0.0.1:2770/sessionserver/session/minecraft/profile/00000000-0
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
-| 启动中止于凭据解析 | 配置了 `core_api` 凭据但 HRPAuth 核心不可达/凭据错 | 先确保核心在运行、凭据正确；启动期解析任何失败都中止 |
-| 普通玩家无法认证 | HRPAuth 核心运行期不可达 | 恢复核心 |
+| 启动中止于凭据解析 | 配置了 `core_api` 凭据但 Armorial 核心不可达/凭据错 | 先确保核心在运行、凭据正确；启动期解析任何失败都中止 |
+| 普通玩家无法认证 | Armorial 核心运行期不可达 | 恢复核心 |
 | 只有代理账号能认证 | `core_api` 凭据留空（无核心形态） | 预期行为；接入核心需补齐凭据 |
 | 启动日志配置版本警告 | 配置文件 version 与代码期望不一致 | 同主版本内自动迁移，无需手工处理；跨主版本按提示恢复备份或升级程序 |
 | 纹理 URL 不可访问 | `callback.url` 未配置且核心站点元数据推导不符 | 显式配置 `callback.url` 为公网基址 |
